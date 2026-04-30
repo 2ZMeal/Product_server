@@ -51,6 +51,7 @@ public class ProductService {
         return ProductResponse.from(productSaved);
     }
 
+    //상품 수정(요일별 식단 개별 수정x 전체 수정o)
     @Transactional
     public ProductResponse updateProduct(UUID productId, ProductUpdateRequest productUpdateRequest) {
 
@@ -84,4 +85,24 @@ public class ProductService {
 
         return ProductResponse.from(product);
     }
+
+    //상품 삭제
+    @Transactional
+    public void deleteProduct(UUID productId, String deletedBy) {
+
+        Product product = productRepository.findByIdAndDeletedAtIsNull(productId)
+                .orElseThrow(() -> new CustomException(ProductErrorCode.PRODUCT_NOT_FOUND));
+
+        product.delete(deletedBy);
+    }
+
+    //단건 조회
+    @Transactional(readOnly = true)
+    public ProductResponse getProduct(UUID productId) {
+        Product product = productRepository.findByIdAndDeletedAtIsNull(productId)
+                .orElseThrow(() -> new CustomException(ProductErrorCode.PRODUCT_NOT_FOUND));
+
+        return ProductResponse.from(product);
+    }
+
 }
