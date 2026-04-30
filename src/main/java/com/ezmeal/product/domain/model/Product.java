@@ -13,6 +13,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.DayOfWeek;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import lombok.AccessLevel;
@@ -54,9 +55,14 @@ public class Product extends BaseEntity {
     @Column(name = "meal_period", nullable = false)
     private ProductMealPeriod mealPeriod;
 
+    @Getter(AccessLevel.NONE)
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductMealPlan> mealPlans = new ArrayList<>();
 
+    //dto 읽기 전용
+    public List<ProductMealPlan> getMealPlans() {
+        return Collections.unmodifiableList(mealPlans);
+    }
 
     // 상품 생성
     public Product(UUID companyId, String name, String description, Integer price, Integer maxOrderCount,
@@ -145,6 +151,7 @@ public class Product extends BaseEntity {
 
     }
 
+    //요일별 식단을 mealplans 리스트에 추가
     public void addMealPlan(ProductMealPlan mealPlan) {
 
         if (mealPlan == null) {
@@ -157,6 +164,20 @@ public class Product extends BaseEntity {
         mealPlan.assignProduct(this);
     }
 
+    //수정시 식단 전체 교체
+    public void replaceMealPlans(List<ProductMealPlan> newMealPlans) {
+        if (newMealPlans == null || newMealPlans.isEmpty()) {
+            throw new IllegalArgumentException("요일별 식단은 최소 1개 이상 필요합니다.");
+        }
+
+        this.mealPlans.clear();
+
+        for (ProductMealPlan mealPlan : newMealPlans) {
+            addMealPlan(mealPlan);
+        }
+    }
+
+    //요일별 식단의 요일들이 중복되지 않는지 검증
     private void validateDuplicateDay(DayOfWeek dayOfWeek) {
         boolean exists = mealPlans.stream()
                 .anyMatch(mealPlan -> mealPlan.getDayOfWeek() == dayOfWeek);

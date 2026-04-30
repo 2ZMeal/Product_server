@@ -47,6 +47,7 @@ public class ProductMealPlan extends BaseEntity {
     @Column(name = "nutrition_info", length = 255)
     private String nutritionInfo;
 
+    // 요일별 식단 생성
     public ProductMealPlan(DayOfWeek dayOfWeek, String menuName, String allergyInfo,
                            String nutritionInfo) {
 
@@ -62,6 +63,7 @@ public class ProductMealPlan extends BaseEntity {
     }
 
 
+    //수정
     public void update(DayOfWeek dayOfWeek, String menuName, String allergyInfo,
                        String nutritionInfo) {
         DayOfWeek nextDayOfWeek = dayOfWeek != null ? dayOfWeek : this.dayOfWeek;
@@ -82,6 +84,7 @@ public class ProductMealPlan extends BaseEntity {
         this.nutritionInfo = nextNutritionInfo;
     }
 
+    //검증
     private void validation(DayOfWeek dayOfWeek, String menuName, String allergyInfo,
                             String nutritionInfo) {
 
@@ -102,9 +105,13 @@ public class ProductMealPlan extends BaseEntity {
 
     }
 
+    //상품에 요일별식단을 연결하는데 이미 연결된 상품이 있나 검증 후 연결
     void assignProduct(Product product) {
         if (product == null) {
             throw new IllegalArgumentException("상품은 필수입니다.");
+        }
+        if (this.product != null && this.product != product) {
+            throw new IllegalArgumentException("이미 다른 상품에 연결된 식단입니다.");
         }
         this.product = product;
     }
