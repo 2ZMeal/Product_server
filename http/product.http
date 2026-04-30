@@ -1,0 +1,141 @@
+@productId = 088c5214-30e7-415b-a858-0babb370ce15
+
+### 상품 생성
+POST http://localhost:19083/api/v1/products
+Content-Type: application/json
+X-User-Id: test-admin
+X-User-Role: ADMIN
+
+{
+  "companyId": "11111111-1111-1111-1111-111111111111",
+  "name": "한식 아침 월수금 패키지",
+  "description": "든든한 한식 아침 도시락 구독 상품",
+  "price": 89000,
+  "maxOrderCount": 50,
+  "category": "KOREAN",
+  "mealPeriod": "BREAKFAST",
+  "mealPlans": [
+    {
+      "dayOfWeek": "MONDAY",
+      "menuName": "불고기 도시락",
+      "allergyInfo": "대두, 밀",
+      "nutritionInfo": "650kcal"
+    },
+    {
+      "dayOfWeek": "WEDNESDAY",
+      "menuName": "제육 도시락",
+      "allergyInfo": "돼지고기, 대두",
+      "nutritionInfo": "720kcal"
+    },
+    {
+      "dayOfWeek": "FRIDAY",
+      "menuName": "비빔밥",
+      "allergyInfo": "계란, 대두",
+      "nutritionInfo": "680kcal"
+    }
+  ]
+}
+
+
+### 상품 상세 조회
+GET http://localhost:19083/api/v1/products/{{productId}}
+
+
+### 상품 수정 - 기본 정보만 수정, 식단 유지
+PATCH http://localhost:19083/api/v1/products/{{productId}}
+Content-Type: application/json
+
+{
+  "name": "한식 아침 월수금 프리미엄 패키지",
+  "description": "든든한 프리미엄 한식 아침 도시락",
+  "price": 99000,
+  "maxOrderCount": 40,
+  "category": "KOREAN",
+  "mealPeriod": "BREAKFAST",
+  "mealPlans": null
+}
+
+
+### 상품 수정 - 식단 전체 교체
+PATCH http://localhost:19083/api/v1/products/{{productId}}
+Content-Type: application/json
+X-User-Id: test-admin
+X-User-Role: ADMIN
+
+{
+  "name": "한식 아침 화목 패키지",
+  "description": "화목 제공 한식 아침 도시락",
+  "price": 69000,
+  "maxOrderCount": 30,
+  "category": "KOREAN",
+  "mealPeriod": "BREAKFAST",
+  "mealPlans": [
+    {
+      "dayOfWeek": "TUESDAY",
+      "menuName": "닭갈비 도시락",
+      "allergyInfo": "닭고기, 대두",
+      "nutritionInfo": "700kcal"
+    },
+    {
+      "dayOfWeek": "THURSDAY",
+      "menuName": "간장불고기 도시락",
+      "allergyInfo": "돼지고기, 대두, 밀",
+      "nutritionInfo": "730kcal"
+    }
+  ]
+}
+
+
+### 상품 생성 실패 테스트 - mealPlans 빈 배열
+POST http://localhost:19083/api/v1/products
+Content-Type: application/json
+
+{
+  "companyId": "11111111-1111-1111-1111-111111111111",
+  "name": "빈 식단 상품",
+  "description": "실패해야 하는 요청",
+  "price": 10000,
+  "maxOrderCount": 10,
+  "category": "KOREAN",
+  "mealPeriod": "BREAKFAST",
+  "mealPlans": []
+}
+
+
+### 상품 생성 실패 테스트 - 같은 요일 중복
+POST http://localhost:19083/api/v1/products
+Content-Type: application/json
+X-User-Id: test-admin
+X-User-Role: ADMIN
+
+{
+  "companyId": "11111111-1111-1111-1111-111111111111",
+  "name": "요일 중복 상품",
+  "description": "실패해야 하는 요청",
+  "price": 10000,
+  "maxOrderCount": 10,
+  "category": "KOREAN",
+  "mealPeriod": "BREAKFAST",
+  "mealPlans": [
+    {
+      "dayOfWeek": "MONDAY",
+      "menuName": "불고기 도시락",
+      "allergyInfo": "대두",
+      "nutritionInfo": "650kcal"
+    },
+    {
+      "dayOfWeek": "MONDAY",
+      "menuName": "제육 도시락",
+      "allergyInfo": "돼지고기",
+      "nutritionInfo": "720kcal"
+    }
+  ]
+}
+
+
+### 상품 삭제
+DELETE http://localhost:19083/api/v1/products/{{productId}}
+
+
+### 삭제 후 조회 실패 확인
+GET http://localhost:19083/api/v1/products/{{productId}}
