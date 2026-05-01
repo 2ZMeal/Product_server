@@ -11,4 +11,5 @@ public interface CompanySnapshotRepository {
     Optional<CompanySnapshot> findByCompanyId(UUID companyId);
 
     Optional<CompanySnapshot> findByCompanyIdAndDeletedAtIsNull(UUID companyId);
+
 }
