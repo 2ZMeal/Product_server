@@ -1,6 +1,6 @@
 package com.ezmeal.product.domain.event.payload;
 
-import com.ezmeal.product.domain.model.ProductMealPlan;
+import com.ezmeal.product.domain.model.product.ProductMealPlan;
 import java.time.DayOfWeek;
 import java.util.UUID;
 

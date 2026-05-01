@@ -1,7 +1,7 @@
 package com.ezmeal.product.presentation;
 
 import com.ezmeal.common.response.CommonApiResponse;
-import com.ezmeal.product.application.ProductService;
+import com.ezmeal.product.application.service.ProductService;
 import com.ezmeal.product.application.request.ProductCreateRequest;
 import com.ezmeal.product.application.request.ProductUpdateRequest;
 import com.ezmeal.product.application.response.ProductResponse;

@@ -1,7 +1,7 @@
-package com.ezmeal.product.infrastruture.persistence;
+package com.ezmeal.product.infrastruture.persistence.productRepository;
 
-import com.ezmeal.product.domain.model.Product;
-import com.ezmeal.product.domain.repository.ProductRepository;
+import com.ezmeal.product.domain.model.product.Product;
+import com.ezmeal.product.domain.repository.product.ProductRepository;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;

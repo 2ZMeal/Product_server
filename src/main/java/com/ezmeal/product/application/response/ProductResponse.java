@@ -1,8 +1,8 @@
 package com.ezmeal.product.application.response;
 
-import com.ezmeal.product.domain.model.Product;
-import com.ezmeal.product.domain.model.ProductCategory;
-import com.ezmeal.product.domain.model.ProductMealPeriod;
+import com.ezmeal.product.domain.model.product.Product;
+import com.ezmeal.product.domain.model.product.ProductCategory;
+import com.ezmeal.product.domain.model.product.ProductMealPeriod;
 import java.util.List;
 import java.util.UUID;
 

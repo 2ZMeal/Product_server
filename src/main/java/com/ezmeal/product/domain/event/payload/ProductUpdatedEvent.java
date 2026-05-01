@@ -1,8 +1,8 @@
 package com.ezmeal.product.domain.event.payload;
 
 import com.ezmeal.product.domain.event.ProductEventType;
-import com.ezmeal.product.domain.model.ProductCategory;
-import com.ezmeal.product.domain.model.ProductMealPeriod;
+import com.ezmeal.product.domain.model.product.ProductCategory;
+import com.ezmeal.product.domain.model.product.ProductMealPeriod;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;

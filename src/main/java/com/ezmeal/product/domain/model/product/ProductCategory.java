@@ -1,4 +1,4 @@
-package com.ezmeal.product.domain.model;
+package com.ezmeal.product.domain.model.product;
 
 public enum ProductCategory {
     KOREAN, //한식

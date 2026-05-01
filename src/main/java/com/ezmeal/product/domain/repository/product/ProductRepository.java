@@ -1,6 +1,6 @@
-package com.ezmeal.product.domain.repository;
+package com.ezmeal.product.domain.repository.product;
 
-import com.ezmeal.product.domain.model.Product;
+import com.ezmeal.product.domain.model.product.Product;
 import java.util.Optional;
 import java.util.UUID;
 
