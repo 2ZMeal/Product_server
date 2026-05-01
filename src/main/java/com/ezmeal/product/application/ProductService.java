@@ -6,6 +6,10 @@ import com.ezmeal.product.application.request.ProductMealPlanCreateRequest;
 import com.ezmeal.product.application.request.ProductMealPlanUpdateRequest;
 import com.ezmeal.product.application.request.ProductUpdateRequest;
 import com.ezmeal.product.application.response.ProductResponse;
+import com.ezmeal.product.domain.event.payload.ProductCreatedEvent;
+import com.ezmeal.product.domain.event.payload.ProductDeletedEvent;
+import com.ezmeal.product.domain.event.payload.ProductMealPlanEventPayload;
+import com.ezmeal.product.domain.event.payload.ProductUpdatedEvent;
 import com.ezmeal.product.domain.exception.ProductErrorCode;
 import com.ezmeal.product.domain.model.Product;
 import com.ezmeal.product.domain.model.ProductMealPlan;
@@ -14,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ProductService {
     private final ProductRepository productRepository;
-
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     //상품 생성
     @Transactional
@@ -47,6 +52,18 @@ public class ProductService {
             product.addMealPlan(mealPlan);
         }
         Product productSaved = productRepository.save(product);
+
+        List<ProductMealPlanEventPayload> mealPlans = productSaved.getMealPlans().stream()
+                .map(ProductMealPlanEventPayload::from)
+                .toList();
+
+        ProductCreatedEvent event = ProductCreatedEvent.of(productSaved.getId(), productSaved.getCompanyId(),
+                productSaved.getName(),
+                productSaved.getDescription(),
+                productSaved.getPrice(), productSaved.getCategory(), productSaved.getMealPeriod(),
+                productSaved.getMaxOrderCount(), mealPlans
+        );
+        applicationEventPublisher.publishEvent(event);
 
         return ProductResponse.from(productSaved);
     }
@@ -83,6 +100,17 @@ public class ProductService {
             product.replaceMealPlans(newMealPlans);
         }
 
+        List<ProductMealPlanEventPayload> mealPlans = product.getMealPlans().stream()
+                .map(ProductMealPlanEventPayload::from)
+                .toList();
+
+        ProductUpdatedEvent event = ProductUpdatedEvent.of(product.getId(), product.getCompanyId(), product.getName(),
+                product.getDescription(),
+                product.getPrice(), product.getCategory(), product.getMealPeriod(), product.getMaxOrderCount(),
+                mealPlans
+        );
+        applicationEventPublisher.publishEvent(event);
+
         return ProductResponse.from(product);
     }
 
@@ -94,6 +122,9 @@ public class ProductService {
                 .orElseThrow(() -> new CustomException(ProductErrorCode.PRODUCT_NOT_FOUND));
 
         product.delete(deletedBy);
+
+        ProductDeletedEvent event = ProductDeletedEvent.of(product.getId(), product.getCompanyId());
+        applicationEventPublisher.publishEvent(event);
     }
 
     //단건 조회
