@@ -1,4 +1,4 @@
-package com.ezmeal.product.domain.model;
+package com.ezmeal.product.domain.model.product;
 
 import com.ezmeal.common.entity.BaseEntity;
 import jakarta.persistence.Column;

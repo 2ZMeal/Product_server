@@ -1,6 +1,6 @@
-package com.ezmeal.product.infrastruture.persistence;
+package com.ezmeal.product.infrastruture.persistence.productRepository;
 
-import com.ezmeal.product.domain.model.Product;
+import com.ezmeal.product.domain.model.product.Product;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;

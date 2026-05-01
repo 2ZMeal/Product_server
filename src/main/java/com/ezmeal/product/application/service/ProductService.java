@@ -1,4 +1,4 @@
-package com.ezmeal.product.application;
+package com.ezmeal.product.application.service;
 
 import com.ezmeal.common.exception.CustomException;
 import com.ezmeal.product.application.request.ProductCreateRequest;
@@ -11,9 +11,9 @@ import com.ezmeal.product.domain.event.payload.ProductDeletedEvent;
 import com.ezmeal.product.domain.event.payload.ProductMealPlanEventPayload;
 import com.ezmeal.product.domain.event.payload.ProductUpdatedEvent;
 import com.ezmeal.product.domain.exception.ProductErrorCode;
-import com.ezmeal.product.domain.model.Product;
-import com.ezmeal.product.domain.model.ProductMealPlan;
-import com.ezmeal.product.domain.repository.ProductRepository;
+import com.ezmeal.product.domain.model.product.Product;
+import com.ezmeal.product.domain.model.product.ProductMealPlan;
+import com.ezmeal.product.domain.repository.product.ProductRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
