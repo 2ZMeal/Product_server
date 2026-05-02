@@ -149,7 +149,15 @@ public class ProductService {
             throw new CustomException(ProductErrorCode.PRODUCT_ACCESS_DENIED);
         }
 
-        if (!companySnapshot.getManagerUserId().equals(UUID.fromString(userId))) {
+        if (!companySnapshot.getManagerUserId().equals(parseUserId(userId))) {
+            throw new CustomException(ProductErrorCode.PRODUCT_ACCESS_DENIED);
+        }
+    }
+
+    private UUID parseUserId(String userId) {
+        try {
+            return UUID.fromString(userId);
+        } catch (IllegalArgumentException e) {
             throw new CustomException(ProductErrorCode.PRODUCT_ACCESS_DENIED);
         }
     }
@@ -159,6 +167,12 @@ public class ProductService {
         Product product = productRepository.findByIdAndDeletedAtIsNullForUpdate(productId)
                 .orElseThrow(() -> new CustomException(ProductErrorCode.PRODUCT_NOT_FOUND));
 
+        validateOrderQuantity(quantity);
+
+        if (product.getMaxOrderCount() < quantity) {
+            throw new CustomException(ProductErrorCode.PRODUCT_ORDER_QUANTITY_EXCEEDED);
+        }
+
         product.reserveOrderQuantity(quantity);
     }
 
@@ -167,7 +181,15 @@ public class ProductService {
         Product product = productRepository.findByIdAndDeletedAtIsNullForUpdate(productId)
                 .orElseThrow(() -> new CustomException(ProductErrorCode.PRODUCT_NOT_FOUND));
 
+        validateOrderQuantity(quantity);
+
         product.restoreOrderQuantity(quantity);
+    }
+
+    private void validateOrderQuantity(Integer quantity) {
+        if (quantity == null || quantity <= 0) {
+            throw new CustomException(ProductErrorCode.PRODUCT_ORDER_QUANTITY_INVALID);
+        }
     }
 
 }
