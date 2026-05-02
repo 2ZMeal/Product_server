@@ -13,6 +13,7 @@ import com.ezmeal.product.domain.event.payload.ProductUpdatedEvent;
 import com.ezmeal.product.domain.exception.ProductErrorCode;
 import com.ezmeal.product.domain.model.product.Product;
 import com.ezmeal.product.domain.model.product.ProductMealPlan;
+import com.ezmeal.product.domain.repository.companySnapshot.CompanySnapshotRepository;
 import com.ezmeal.product.domain.repository.product.ProductRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,10 +28,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProductService {
     private final ProductRepository productRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final CompanySnapshotRepository companySnapshotRepository;
 
     //상품 생성
     @Transactional
     public ProductResponse createProduct(ProductCreateRequest productCreateRequest) {
+
+        companySnapshotRepository.findByCompanyIdAndDeletedAtIsNull(productCreateRequest.companyId())
+                .orElseThrow(() -> new CustomException(ProductErrorCode.COMPANY_NOT_FOUND));
 
         if (productCreateRequest.mealPlans() == null || productCreateRequest.mealPlans().isEmpty()) {
             throw new CustomException(ProductErrorCode.PRODUCT_MEAL_PLAN_REQUIRED);
@@ -71,6 +76,9 @@ public class ProductService {
     //상품 수정(요일별 식단 개별 수정x 전체 수정o)
     @Transactional
     public ProductResponse updateProduct(UUID productId, ProductUpdateRequest productUpdateRequest) {
+
+        companySnapshotRepository.findByCompanyIdAndDeletedAtIsNull(productUpdateRequest.companyId())
+                .orElseThrow(() -> new CustomException(ProductErrorCode.COMPANY_NOT_FOUND));
 
         Product product = productRepository.findByIdAndDeletedAtIsNull(productId)
                 .orElseThrow(() -> new CustomException(ProductErrorCode.PRODUCT_NOT_FOUND));

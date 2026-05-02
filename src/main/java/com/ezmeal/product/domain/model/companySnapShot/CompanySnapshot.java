@@ -16,6 +16,7 @@ import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.util.StringUtils;
 
 @Getter
 @Entity
@@ -56,6 +57,9 @@ public class CompanySnapshot extends BaseEntity {
 
     public CompanySnapshot(UUID companyId, String name, String lotAddress,
                            String roadAddress, String description) {
+
+        validate(companyId, name);
+
         this.companyId = companyId;
         this.name = name;
         this.lotAddress = lotAddress;
@@ -64,6 +68,9 @@ public class CompanySnapshot extends BaseEntity {
     }
 
     public void update(String name, String lotAddress, String roadAddress, String description) {
+
+        validate(companyId, name);
+
         this.name = name;
         this.lotAddress = lotAddress;
         this.roadAddress = roadAddress;
@@ -71,12 +78,34 @@ public class CompanySnapshot extends BaseEntity {
     }
 
     public void replaceDeliveryAreas(List<CompanySnapshotDeliveryArea> newDeliveryAreas) {
-        this.deliveryAreas.clear();
+        if (newDeliveryAreas == null) {
+            throw new IllegalArgumentException("배송지역 목록은 null일 수 없습니다.");
+        }
+
+        List<CompanySnapshotDeliveryArea> replacement = new ArrayList<>();
 
         for (CompanySnapshotDeliveryArea deliveryArea : newDeliveryAreas) {
-            this.deliveryAreas.add(deliveryArea);
+            if (deliveryArea == null) {
+                throw new IllegalArgumentException("배송지역은 null일 수 없습니다.");
+            }
+
             deliveryArea.assignCompanySnapshot(this);
+            replacement.add(deliveryArea);
+        }
+
+        this.deliveryAreas.clear();
+        this.deliveryAreas.addAll(replacement);
+    }
+
+    private void validate(UUID companyId, String name) {
+        if (companyId == null) {
+            throw new IllegalArgumentException("업체 ID는 필수입니다.");
+        }
+
+        if (!StringUtils.hasText(name)) {
+            throw new IllegalArgumentException("업체명은 필수입니다.");
         }
     }
+
 
 }
