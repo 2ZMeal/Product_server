@@ -10,6 +10,7 @@ public record CompanySnapshotUpdatedMessage(
         String companyEventType,
         OffsetDateTime occurredAt,
         UUID companyId,
+        UUID managerUserId,
         String companyName,
         String companyLotAddress,
         String companyRoadAddress,

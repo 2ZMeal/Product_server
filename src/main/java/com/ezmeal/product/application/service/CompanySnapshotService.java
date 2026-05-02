@@ -19,9 +19,15 @@ public class CompanySnapshotService {
 
     @Transactional
     public void upsert(CompanySnapshotUpdatedMessage message) {
+
+        if (message.deliveryAreas() == null) {
+            throw new IllegalArgumentException("배송지역 목록은 null일 수 없습니다.");
+        }
+
         CompanySnapshot companySnapshot = companySnapshotRepository.findByCompanyId(message.companyId())
                 .orElseGet(() -> new CompanySnapshot(
                         message.companyId(),
+                        message.managerUserId(),
                         message.companyName(),
                         message.companyLotAddress(),
                         message.companyRoadAddress(),
@@ -29,6 +35,7 @@ public class CompanySnapshotService {
                 ));
 
         companySnapshot.update(
+                message.managerUserId(),
                 message.companyName(),
                 message.companyLotAddress(),
                 message.companyRoadAddress(),

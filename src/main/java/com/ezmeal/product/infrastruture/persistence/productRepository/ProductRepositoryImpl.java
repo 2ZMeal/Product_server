@@ -22,4 +22,9 @@ public class ProductRepositoryImpl implements ProductRepository {
     public Optional<Product> findByIdAndDeletedAtIsNull(UUID productId) {
         return jpaProductRepository.findByIdAndDeletedAtIsNull(productId);
     }
+
+    @Override
+    public Optional<Product> findByIdAndDeletedAtIsNullForUpdate(UUID productId) {
+        return jpaProductRepository.findByIdAndDeletedAtIsNullForUpdate(productId);
+    }
 }
