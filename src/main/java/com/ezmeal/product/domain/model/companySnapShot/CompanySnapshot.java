@@ -36,8 +36,8 @@ public class CompanySnapshot extends BaseEntity {
     @OneToMany(mappedBy = "companySnapshot", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CompanySnapshotDeliveryArea> deliveryAreas = new ArrayList<>();
 
-//    @Column(name = "manager_user_id", nullable = false)
-//    private UUID managerUserId;
+    @Column(name = "manager_user_id", nullable = false)
+    private UUID managerUserId;
 
     @Column(name = "name", nullable = false, length = 255)
     private String name;
@@ -55,22 +55,24 @@ public class CompanySnapshot extends BaseEntity {
         return Collections.unmodifiableList(deliveryAreas);
     }
 
-    public CompanySnapshot(UUID companyId, String name, String lotAddress,
+    public CompanySnapshot(UUID companyId, UUID managerUserId, String name, String lotAddress,
                            String roadAddress, String description) {
 
-        validate(companyId, name);
+        validate(companyId, managerUserId, name);
 
         this.companyId = companyId;
+        this.managerUserId = managerUserId;
         this.name = name;
         this.lotAddress = lotAddress;
         this.roadAddress = roadAddress;
         this.description = description;
     }
 
-    public void update(String name, String lotAddress, String roadAddress, String description) {
+    public void update(UUID managerUserId, String name, String lotAddress, String roadAddress, String description) {
 
-        validate(companyId, name);
+        validate(companyId, managerUserId, name);
 
+        this.managerUserId = managerUserId;
         this.name = name;
         this.lotAddress = lotAddress;
         this.roadAddress = roadAddress;
@@ -97,9 +99,13 @@ public class CompanySnapshot extends BaseEntity {
         this.deliveryAreas.addAll(replacement);
     }
 
-    private void validate(UUID companyId, String name) {
+    private void validate(UUID companyId, UUID managerUserId, String name) {
         if (companyId == null) {
             throw new IllegalArgumentException("업체 ID는 필수입니다.");
+        }
+
+        if (managerUserId == null) {
+            throw new IllegalArgumentException("업체관리자 ID는 필수입니다.");
         }
 
         if (!StringUtils.hasText(name)) {

@@ -15,8 +15,9 @@ public enum ProductErrorCode implements ErrorCode {
     PRODUCT_ACCESS_DENIED(HttpStatus.FORBIDDEN, "PRODUCT_403", "상품에 접근할 권한이 없습니다."),
     PRODUCT_ALREADY_EXISTS(HttpStatus.CONFLICT, "PRODUCT_409", "이미 존재하는 상품입니다."),
     PRODUCT_MEAL_PLAN_DUPLICATED_DAY(HttpStatus.CONFLICT, "PRODUCT_MEAL_PLAN_409", "같은 요일의 식단은 중복 등록할 수 없습니다."),
-    COMPANY_NOT_FOUND(HttpStatus.NOT_FOUND, "COMPANY_404", "업체를 찾을 수 없습니다.");
-
+    COMPANY_NOT_FOUND(HttpStatus.NOT_FOUND, "COMPANY_404", "업체를 찾을 수 없습니다."),
+    PRODUCT_ORDER_QUANTITY_INVALID(HttpStatus.BAD_REQUEST, "PRODUCT_ORDER_QUANTITY_400", "주문 수량은 1개 이상이어야 합니다."),
+    PRODUCT_ORDER_QUANTITY_EXCEEDED(HttpStatus.CONFLICT, "PRODUCT_ORDER_QUANTITY_409", "주문 가능 수량이 부족합니다.");
 
 
     private final HttpStatus status;

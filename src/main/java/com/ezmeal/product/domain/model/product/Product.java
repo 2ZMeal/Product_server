@@ -109,6 +109,29 @@ public class Product extends BaseEntity {
 
     }
 
+    //들어온 주문량
+    public void reserveOrderQuantity(Integer quantity) {
+        validateOrderQuantity(quantity);
+
+        if (this.maxOrderCount < quantity) {
+            throw new IllegalArgumentException("주문 가능 수량이 부족합니다.");
+        }
+
+        this.maxOrderCount -= quantity;
+    }
+
+    //취소된 주문량
+    public void restoreOrderQuantity(Integer quantity) {
+        validateOrderQuantity(quantity);
+
+        this.maxOrderCount += quantity;
+    }
+
+    private void validateOrderQuantity(Integer quantity) {
+        if (quantity == null || quantity <= 0) {
+            throw new IllegalArgumentException("주문 수량은 1개 이상이어야 합니다.");
+        }
+    }
 
     //빠지면 안되는 값들 검증
     private void validate(UUID companyId, String name, Integer price, Integer maxOrderCount,
