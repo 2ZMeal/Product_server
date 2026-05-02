@@ -52,7 +52,10 @@ public class ProductEventProducerImpl implements ProductEventProducer {
         // 3. 인증 정보가 있는 유저의 요청일 경우에만 카프카 헤더 추가
         if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof CustomUserPrincipal principal) {
             record.headers().add("X-User-Id", principal.getUserId().getBytes(StandardCharsets.UTF_8));
-            record.headers().add("X-User-Role", principal.getRole().name().getBytes(StandardCharsets.UTF_8));
+            record.headers().add("X-User-Roles", principal.getRole().name().getBytes(StandardCharsets.UTF_8));
+
+            String email = principal.getEmail() != null ? principal.getEmail() : "";
+            record.headers().add("X-User-Email", email.getBytes(StandardCharsets.UTF_8));
         }
 
         // 4. 카프카로 전송
