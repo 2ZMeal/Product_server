@@ -22,7 +22,7 @@ import org.springframework.util.StringUtils;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "p_product_meal_plan", schema = "product_service")
+@Table(name = "p_product_meal_plan")
 public class ProductMealPlan extends BaseEntity {
 
     @Id

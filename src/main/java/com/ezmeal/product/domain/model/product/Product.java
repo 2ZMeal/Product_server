@@ -24,7 +24,7 @@ import org.springframework.util.StringUtils;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "p_product", schema = "product_service")
+@Table(name = "p_product")
 public class Product extends BaseEntity {
 
     @Id
