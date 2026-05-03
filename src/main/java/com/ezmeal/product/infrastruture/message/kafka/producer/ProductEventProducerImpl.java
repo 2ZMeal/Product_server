@@ -15,7 +15,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 
-// 인증 인가 완료되면 밑에 인증정보 관련 로직 주석 해제 예정
 @Slf4j
 @Component
 @RequiredArgsConstructor

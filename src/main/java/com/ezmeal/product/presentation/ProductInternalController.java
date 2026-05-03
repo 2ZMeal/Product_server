@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/internal/products")
+@RequestMapping("/internal/v1/products")
 public class ProductInternalController {
 
     private final ProductService productService;
