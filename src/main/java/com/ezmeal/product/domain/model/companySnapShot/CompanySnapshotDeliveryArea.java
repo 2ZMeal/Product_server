@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "p_company_snapshot_delivery_area", schema = "product_service")
+@Table(name = "p_company_snapshot_delivery_area")
 public class CompanySnapshotDeliveryArea extends BaseEntity {
 
     @Id
