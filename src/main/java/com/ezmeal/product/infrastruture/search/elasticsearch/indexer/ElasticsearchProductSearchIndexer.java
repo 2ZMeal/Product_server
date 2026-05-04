@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 public class ElasticsearchProductSearchIndexer implements ProductSearchIndexer {
 
     private final ProductSearchDocumentRepository productSearchDocumentRepository;
+
     @Override
     public void save(ProductSearchIndexCommand command) {
         ProductSearchDocument document = ProductSearchDocument.from(command);
