@@ -26,7 +26,7 @@ import org.springframework.util.StringUtils;
 public class ProductMealPlan extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "product_meal_plan_id")
     private UUID id;
 

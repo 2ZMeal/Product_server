@@ -28,7 +28,7 @@ import org.springframework.util.StringUtils;
 public class Product extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "product_id")
     private UUID id;
 
