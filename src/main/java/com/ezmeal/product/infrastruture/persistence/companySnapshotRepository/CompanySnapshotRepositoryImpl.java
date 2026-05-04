@@ -28,4 +28,9 @@ public class CompanySnapshotRepositoryImpl implements CompanySnapshotRepository 
     public Optional<CompanySnapshot> findByCompanyIdAndDeletedAtIsNull(UUID companyId) {
         return jpaCompanySnapshotRepository.findByCompanyIdAndDeletedAtIsNull(companyId);
     }
+
+    @Override
+    public Optional<CompanySnapshot> findWithDeliveryAreasByCompanyIdAndDeletedAtIsNull(UUID companyId) {
+        return jpaCompanySnapshotRepository.findWithDeliveryAreasByCompanyIdAndDeletedAtIsNull(companyId);
+    }
 }
