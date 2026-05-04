@@ -63,7 +63,8 @@ public class ProductService {
 
         ProductCreatedEvent event = ProductCreatedEvent.of(productSaved.getId(), productSaved.getCompanyId(),
                 productSaved.getName(), productSaved.getDescription(), productSaved.getPrice(),
-                productSaved.getCategory(), productSaved.getMealPeriod(), productSaved.getMaxOrderCount(), mealPlans);
+                productSaved.getCategory(), productSaved.getMealPeriod(), productSaved.getMaxOrderCount(), mealPlans,
+                productSaved.getCreatedAt(), productSaved.getModifiedAt());
         applicationEventPublisher.publishEvent(event);
 
         return ProductResponse.from(productSaved);
@@ -107,7 +108,7 @@ public class ProductService {
 
         ProductUpdatedEvent event = ProductUpdatedEvent.of(product.getId(), product.getCompanyId(), product.getName(),
                 product.getDescription(), product.getPrice(), product.getCategory(), product.getMealPeriod(),
-                product.getMaxOrderCount(), mealPlans);
+                product.getMaxOrderCount(), mealPlans, product.getCreatedAt(), product.getModifiedAt());
         applicationEventPublisher.publishEvent(event);
 
         return ProductResponse.from(product);

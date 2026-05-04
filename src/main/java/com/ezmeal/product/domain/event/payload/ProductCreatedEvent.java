@@ -3,6 +3,7 @@ package com.ezmeal.product.domain.event.payload;
 import com.ezmeal.product.domain.event.ProductEventType;
 import com.ezmeal.product.domain.model.product.ProductCategory;
 import com.ezmeal.product.domain.model.product.ProductMealPeriod;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -28,17 +29,20 @@ public class ProductCreatedEvent {
     private ProductMealPeriod mealPeriod;
     private Integer maxOrderCount;
     private List<ProductMealPlanEventPayload> mealPlans;
+    private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
 
     public static ProductCreatedEvent of(UUID productId, UUID companyId, String productName, String productDescription,
                                          Integer price,
                                          ProductCategory category, ProductMealPeriod mealPeriod, Integer maxOrderCount,
-                                         List<ProductMealPlanEventPayload> mealPlans
+                                         List<ProductMealPlanEventPayload> mealPlans, LocalDateTime createdAt,
+                                         LocalDateTime modifiedAt
     ) {
         return new ProductCreatedEvent(UUID.randomUUID(),
                 ProductEventType.PRODUCT_CREATED,
                 OffsetDateTime.now(), productId, companyId, productName, productDescription, price, category,
                 mealPeriod,
-                maxOrderCount, mealPlans);
+                maxOrderCount, mealPlans, createdAt, modifiedAt);
     }
 
 }

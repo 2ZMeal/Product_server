@@ -3,6 +3,7 @@ package com.ezmeal.product.infrastruture.persistence.companySnapshotRepository;
 import com.ezmeal.product.domain.model.companySnapShot.CompanySnapshot;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface JpaCompanySnapshotRepository extends JpaRepository<CompanySnapshot, UUID> {
@@ -10,4 +11,8 @@ public interface JpaCompanySnapshotRepository extends JpaRepository<CompanySnaps
     Optional<CompanySnapshot> findByCompanyId(UUID companyId);
 
     Optional<CompanySnapshot> findByCompanyIdAndDeletedAtIsNull(UUID companyId);
+
+    @EntityGraph(attributePaths = "deliveryAreas")
+    Optional<CompanySnapshot> findWithDeliveryAreasByCompanyIdAndDeletedAtIsNull(UUID companyId);
+
 }

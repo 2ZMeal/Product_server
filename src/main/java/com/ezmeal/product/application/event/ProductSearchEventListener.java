@@ -55,7 +55,8 @@ public class ProductSearchEventListener {
                 event.getCategory().name(),
                 event.getMealPeriod().name(),
                 event.getMealPlans(),
-                event.getOccurredAt().toLocalDateTime()
+                event.getCreatedAt(),
+                event.getModifiedAt()
         );
     }
 
@@ -70,7 +71,8 @@ public class ProductSearchEventListener {
                 event.getCategory().name(),
                 event.getMealPeriod().name(),
                 event.getMealPlans(),
-                event.getOccurredAt().toLocalDateTime()
+                event.getCreatedAt(),
+                event.getModifiedAt()
         );
     }
 
@@ -84,27 +86,28 @@ public class ProductSearchEventListener {
             String category,
             String mealPeriod,
             List<ProductMealPlanEventPayload> eventMealPlans,
-            LocalDateTime occurredAt
+            LocalDateTime createdAt,
+            LocalDateTime modifiedAt
     ) {
         CompanySnapshot companySnapshot = companySnapshotRepository
-                .findByCompanyIdAndDeletedAtIsNull(companyId)
+                .findWithDeliveryAreasByCompanyIdAndDeletedAtIsNull(companyId)
                 .orElseThrow(() -> new CustomException(ProductErrorCode.COMPANY_NOT_FOUND));
 
         List<ProductMealPlanSearchCommand> mealPlans =
                 eventMealPlans == null ? List.of() : eventMealPlans.stream()
-                .map(mealPlan -> new ProductMealPlanSearchCommand(
-                        mealPlan.dayOfWeek().name(),
-                        mealPlan.menuName(),
-                        mealPlan.allergyInfo(),
-                        mealPlan.nutritionInfo()
-                ))
-                .toList();
+                        .map(mealPlan -> new ProductMealPlanSearchCommand(
+                                mealPlan.dayOfWeek().name(),
+                                mealPlan.menuName(),
+                                mealPlan.allergyInfo(),
+                                mealPlan.nutritionInfo()
+                        ))
+                        .toList();
 
         List<String> availableDays =
                 mealPlans.stream()
-                .map(ProductMealPlanSearchCommand::dayOfWeek)
-                .distinct()
-                .toList();
+                        .map(ProductMealPlanSearchCommand::dayOfWeek)
+                        .distinct()
+                        .toList();
 
         List<String> menuNames = mealPlans.stream()
                 .map(ProductMealPlanSearchCommand::menuName)
@@ -141,8 +144,9 @@ public class ProductSearchEventListener {
                 deliveryRegions,
                 mealPlans,
                 deliveryAreas,
-                occurredAt,
-                occurredAt
+                createdAt,
+                modifiedAt
+
         );
     }
 }
