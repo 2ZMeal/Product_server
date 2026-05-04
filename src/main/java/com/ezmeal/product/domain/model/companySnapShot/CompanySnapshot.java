@@ -25,7 +25,7 @@ import org.springframework.util.StringUtils;
 public class CompanySnapshot extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "company_snapshot_id")
     private UUID id;
 
