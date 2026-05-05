@@ -1,9 +1,11 @@
 package com.ezmeal.product.infrastruture.search.elasticsearch.reader;
 
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import com.ezmeal.common.exception.CustomException;
 import com.ezmeal.product.application.request.ProductSearchRequest;
 import com.ezmeal.product.application.search.ProductSearchReader;
 import com.ezmeal.product.application.search.ProductSearchResult;
+import com.ezmeal.product.domain.exception.ProductErrorCode;
 import com.ezmeal.product.infrastruture.search.elasticsearch.document.ProductSearchDocument;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,17 +28,26 @@ public class ElasticsearchProductSearchReader implements ProductSearchReader {
 
     private final ElasticsearchOperations elasticsearchOperations;
 
+    private static final int DEFAULT_PAGE = 0;
+    private static final int DEFAULT_SIZE = 10;
+    private static final int MAX_SIZE = 50;
+    private static final String DEFAULT_SORT_BY = "createdAt";
+    private static final Sort.Direction DEFAULT_DIRECTION = Sort.Direction.DESC;
+    private static final List<String> ALLOWED_SORT_FIELDS = List.of("createdAt", "modifiedAt", "price", "name");
+
     @Override
     public Page<ProductSearchResult> search(ProductSearchRequest request) {
-        int page = request.page() == null ? 0 : request.page();
-        int size = request.size() == null ? 10 : request.size();
-        String sortBy = request.sortBy() == null ? "createdAt" : request.sortBy();
-        String direction = request.direction() == null ? "DESC" : request.direction();
+        int page = resolvePage(request.page());
+        int size = resolveSize(request.size());
+        String sortBy = resolveSortBy(request.sortBy());
+        Sort.Direction direction = resolveDirection(request.direction());
+
+        validatePriceRange(request.minPrice(), request.maxPrice());
 
         PageRequest pageRequest = PageRequest.of(
                 page,
                 size,
-                Sort.by(Sort.Direction.fromString(direction), sortBy)
+                Sort.by(direction, sortBy)
         );
 
         NativeQuery query = buildQuery(request, pageRequest);
@@ -161,5 +172,59 @@ public class ElasticsearchProductSearchReader implements ProductSearchReader {
                 document.getCreatedAt(),
                 document.getModifiedAt()
         );
+    }
+
+    private int resolvePage(Integer page) {
+        if (page == null || page < 0) {
+            return DEFAULT_PAGE;
+        }
+
+        return page;
+    }
+
+    private int resolveSize(Integer size) {
+        if (size == null || size <= 0) {
+            return DEFAULT_SIZE;
+        }
+
+        return Math.min(size, MAX_SIZE);
+    }
+
+    private String resolveSortBy(String sortBy) {
+        if (sortBy == null || sortBy.isBlank()) {
+            return DEFAULT_SORT_BY;
+        }
+
+        if (!ALLOWED_SORT_FIELDS.contains(sortBy)) {
+            return DEFAULT_SORT_BY;
+        }
+
+        return sortBy;
+    }
+
+    private Sort.Direction resolveDirection(String direction) {
+        if (direction == null || direction.isBlank()) {
+            return DEFAULT_DIRECTION;
+        }
+
+        try {
+            return Sort.Direction.fromString(direction);
+        } catch (IllegalArgumentException e) {
+            return DEFAULT_DIRECTION;
+        }
+    }
+
+    private void validatePriceRange(Integer minPrice, Integer maxPrice) {
+        if (minPrice != null && minPrice < 0) {
+            throw new CustomException(ProductErrorCode.PRODUCT_INVALID_REQUEST);
+        }
+
+        if (maxPrice != null && maxPrice < 0) {
+            throw new CustomException(ProductErrorCode.PRODUCT_INVALID_REQUEST);
+        }
+
+        if (minPrice != null && maxPrice != null && minPrice > maxPrice) {
+            throw new CustomException(ProductErrorCode.PRODUCT_INVALID_REQUEST);
+        }
     }
 }
