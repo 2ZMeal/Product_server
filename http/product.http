@@ -1,5 +1,5 @@
 @productId = 321acea3-d7f7-4fa1-a973-c0c486cc9e2a
-@companyId = 6daa8d58-7894-4a3d-8e30-863cbf290896
+@companyId = a2a43d96-902f-4c96-84d2-638173fd93d8
 
 ### 상품 생성
 POST http://localhost:19083/api/v1/products
@@ -9,8 +9,8 @@ X-User-Roles: COMPANY
 X-User-Email: test@google.com
 
 {
-  "companyId": "6daa8d58-7894-4a3d-8e30-863cbf290896",
-  "name": "한식 아침 월수금 패키지",
+  "companyId": "a2a43d96-902f-4c96-84d2-638173fd93d8",
+  "name": "한식 아침 월수금 패키지234",
   "description": "든든한 한식 아침 도시락 구독 상품",
   "price": 89000,
   "maxOrderCount": 50,
@@ -38,6 +38,17 @@ X-User-Email: test@google.com
   ]
 }
 
+### 상품 목록 조회
+GET http://localhost:19083/api/v1/products
+
+### 상품 목록 조회 - 카테고리
+GET http://localhost:19083/api/v1/products?category=KOREAN
+
+### 상품 목록 조회 - 키워드
+GET http://localhost:19083/api/v1/products?keyword=한식
+
+### 상품 목록 조회 - 가격 범위
+GET http://localhost:19083/api/v1/products?minPrice=80000&maxPrice=90000
 
 ### 상품 상세 조회
 GET http://localhost:19083/api/v1/products/{{productId}}
