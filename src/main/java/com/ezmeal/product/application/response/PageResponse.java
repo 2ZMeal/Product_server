@@ -1,4 +1,4 @@
-package com.ezmeal.company.application.dto.response;
+package com.ezmeal.product.application.response;
 
 import java.util.List;
 import org.springframework.data.domain.Page;

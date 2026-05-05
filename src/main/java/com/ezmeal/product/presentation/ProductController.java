@@ -3,8 +3,12 @@ package com.ezmeal.product.presentation;
 import com.ezmeal.common.response.CommonApiResponse;
 import com.ezmeal.common.security.principal.CustomUserPrincipal;
 import com.ezmeal.product.application.request.ProductCreateRequest;
+import com.ezmeal.product.application.request.ProductSearchRequest;
 import com.ezmeal.product.application.request.ProductUpdateRequest;
+import com.ezmeal.product.application.response.PageResponse;
 import com.ezmeal.product.application.response.ProductResponse;
+import com.ezmeal.product.application.response.ProductSearchResponse;
+import com.ezmeal.product.application.service.ProductSearchService;
 import com.ezmeal.product.application.service.ProductService;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,6 +31,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProductController {
 
     private final ProductService productService;
+    private final ProductSearchService productSearchService;
+
 
     @PostMapping
     public ResponseEntity<CommonApiResponse<ProductResponse>> createProduct(
@@ -38,6 +45,15 @@ public class ProductController {
                 principal.getRole());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(CommonApiResponse.success("상품이 생성되었습니다.", response));
+    }
+
+    @GetMapping
+    public ResponseEntity<CommonApiResponse<PageResponse<ProductSearchResponse>>> searchProducts(
+            @ModelAttribute ProductSearchRequest request
+    ) {
+        PageResponse<ProductSearchResponse> response = productSearchService.searchProducts(request);
+
+        return ResponseEntity.ok(CommonApiResponse.success("상품 목록을 조회했습니다.", response));
     }
 
     @GetMapping("/{productId}")

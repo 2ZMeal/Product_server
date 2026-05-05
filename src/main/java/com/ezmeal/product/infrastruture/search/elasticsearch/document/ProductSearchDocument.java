@@ -10,6 +10,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -19,27 +21,43 @@ import org.springframework.data.elasticsearch.annotations.Document;
 public class ProductSearchDocument {
 
     @Id
+    @Field(type = FieldType.Keyword)
     private String productId;
 
+    @Field(type = FieldType.Keyword)
     private String companyId;
+    @Field(type = FieldType.Text)
     private String companyName;
+    @Field(type = FieldType.Text)
     private String companyDescription;
 
+    @Field(type = FieldType.Text)
     private String name;
+    @Field(type = FieldType.Text)
     private String description;
 
+    @Field(type = FieldType.Integer)
     private Integer price;
+    @Field(type = FieldType.Integer)
     private Integer maxOrderCount;
+    @Field(type = FieldType.Boolean)
     private Boolean available;
 
+    @Field(type = FieldType.Keyword)
     private String category;
+    @Field(type = FieldType.Keyword)
     private String mealPeriod;
 
+    @Field(type = FieldType.Keyword)
     private List<String> availableDays;
+    @Field(type = FieldType.Text)
     private List<String> menuNames;
+    @Field(type = FieldType.Keyword)
     private List<String> deliveryRegions;
 
+    @Field(type = FieldType.Object)
     private List<ProductMealPlanSearchDocument> mealPlans;
+    @Field(type = FieldType.Object)
     private List<ProductDeliveryAreaSearchDocument> deliveryAreas;
 
     private LocalDateTime createdAt;
