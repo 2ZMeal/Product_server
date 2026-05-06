@@ -12,5 +12,8 @@ public record ProductSearchRequest(
         Integer page,
         Integer size,
         String sortBy,
-        String direction) {
+        String direction,
+        String arrivalStartTime,
+        String arrivalEndTime
+) {
 }

@@ -13,6 +13,7 @@ import com.ezmeal.product.domain.exception.ProductErrorCode;
 import com.ezmeal.product.domain.model.companySnapShot.CompanySnapshot;
 import com.ezmeal.product.domain.repository.companySnapshot.CompanySnapshotRepository;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -118,7 +119,9 @@ public class ProductSearchEventListener {
                         deliveryArea.getRegion(),
                         deliveryArea.getMealPeriod(),
                         deliveryArea.getEstimatedArrivalStartTime().toString(),
-                        deliveryArea.getEstimatedArrivalEndTime().toString()
+                        deliveryArea.getEstimatedArrivalEndTime().toString(),
+                        toMinute(deliveryArea.getEstimatedArrivalStartTime()),
+                        toMinute(deliveryArea.getEstimatedArrivalEndTime())
                 ))
                 .toList();
 
@@ -148,5 +151,9 @@ public class ProductSearchEventListener {
                 modifiedAt
 
         );
+    }
+
+    private int toMinute(LocalTime time) {
+        return time.getHour() * 60 + time.getMinute();
     }
 }

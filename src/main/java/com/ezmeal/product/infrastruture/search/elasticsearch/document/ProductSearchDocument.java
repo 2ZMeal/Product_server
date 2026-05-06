@@ -58,7 +58,7 @@ public class ProductSearchDocument {
 
     @Field(type = FieldType.Object)
     private List<ProductMealPlanSearchDocument> mealPlans;
-    @Field(type = FieldType.Object)
+    @Field(type = FieldType.Nested)
     private List<ProductDeliveryAreaSearchDocument> deliveryAreas;
 
     @Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second_millis)

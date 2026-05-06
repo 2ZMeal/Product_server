@@ -6,15 +6,21 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 public class ProductMealPlanSearchDocument {
+    @Field(type = FieldType.Keyword)
     private String dayOfWeek;
+    @Field(type = FieldType.Text)
     private String menuName;
+    @Field(type = FieldType.Text)
     private String allergyInfo;
+    @Field(type = FieldType.Text)
     private String nutritionInfo;
 
     public static ProductMealPlanSearchDocument from(ProductMealPlanSearchCommand command) {
