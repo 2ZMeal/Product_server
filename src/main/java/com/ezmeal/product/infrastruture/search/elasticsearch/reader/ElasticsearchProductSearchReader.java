@@ -43,6 +43,7 @@ public class ElasticsearchProductSearchReader implements ProductSearchReader {
         Sort.Direction direction = resolveDirection(request.direction());
 
         validatePriceRange(request.minPrice(), request.maxPrice());
+        validateArrivalTimeRange(request);
 
         PageRequest pageRequest = PageRequest.of(
                 page,
@@ -81,8 +82,8 @@ public class ElasticsearchProductSearchReader implements ProductSearchReader {
             filters.add(termQuery("availableDays", request.dayOfWeek()));
         }
 
-        if (request.region() != null && !request.region().isBlank()) {
-            filters.add(termQuery("deliveryRegions", request.region()));
+        if (hasDeliveryAreaCondition(request)) {
+            filters.add(deliveryAreaNestedQuery(request));
         }
 
         if (request.available() != null) {
@@ -114,6 +115,44 @@ public class ElasticsearchProductSearchReader implements ProductSearchReader {
 
 
         return queryBuilder.build();
+    }
+
+    private Query deliveryAreaNestedQuery(ProductSearchRequest request) {
+        Integer arrivalStartMinute = toMinute(request.arrivalStartTime());
+        Integer arrivalEndMinute = toMinute(request.arrivalEndTime());
+
+        return Query.of(q -> q
+                .nested(n -> n
+                        .path("deliveryAreas")
+                        .query(nq -> nq
+                                .bool(b -> {
+                                    if (hasText(request.region())) {
+                                        b.filter(termQuery("deliveryAreas.region", request.region()));
+                                    }
+
+                                    if (hasText(request.mealPeriod())) {
+                                        b.filter(termQuery("deliveryAreas.mealPeriod", request.mealPeriod()));
+                                    }
+
+                                    if (arrivalEndMinute != null) {
+                                        b.filter(rangeLteQuery(
+                                                "deliveryAreas.estimatedArrivalStartMinute",
+                                                arrivalEndMinute
+                                        ));
+                                    }
+
+                                    if (arrivalStartMinute != null) {
+                                        b.filter(rangeGteQuery(
+                                                "deliveryAreas.estimatedArrivalEndMinute",
+                                                arrivalStartMinute
+                                        ));
+                                    }
+
+                                    return b;
+                                })
+                        )
+                )
+        );
     }
 
     private Query termQuery(String field, String value) {
@@ -227,4 +266,59 @@ public class ElasticsearchProductSearchReader implements ProductSearchReader {
             throw new CustomException(ProductErrorCode.PRODUCT_INVALID_REQUEST);
         }
     }
+
+    private boolean hasDeliveryAreaCondition(ProductSearchRequest request) {
+        return hasText(request.region())
+                || hasText(request.arrivalStartTime())
+                || hasText(request.arrivalEndTime());
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.isBlank();
+    }
+
+    private Integer toMinute(String time) {
+        if (!hasText(time)) {
+            return null;
+        }
+
+        try {
+            java.time.LocalTime localTime = java.time.LocalTime.parse(time);
+            return localTime.getHour() * 60 + localTime.getMinute();
+        } catch (java.time.format.DateTimeParseException e) {
+            throw new CustomException(ProductErrorCode.PRODUCT_INVALID_REQUEST);
+        }
+    }
+
+    private void validateArrivalTimeRange(ProductSearchRequest request) {
+        Integer start = toMinute(request.arrivalStartTime());
+        Integer end = toMinute(request.arrivalEndTime());
+
+        if (start != null && end != null && start > end) {
+            throw new CustomException(ProductErrorCode.PRODUCT_INVALID_REQUEST);
+        }
+    }
+
+    private Query rangeLteQuery(String field, Integer value) {
+        return Query.of(q -> q
+                .range(r -> r
+                        .number(n -> n
+                                .field(field)
+                                .lte(value.doubleValue())
+                        )
+                )
+        );
+    }
+
+    private Query rangeGteQuery(String field, Integer value) {
+        return Query.of(q -> q
+                .range(r -> r
+                        .number(n -> n
+                                .field(field)
+                                .gte(value.doubleValue())
+                        )
+                )
+        );
+    }
+
 }

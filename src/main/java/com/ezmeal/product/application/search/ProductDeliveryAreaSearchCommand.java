@@ -4,6 +4,8 @@ public record ProductDeliveryAreaSearchCommand(
         String region,
         String mealPeriod,
         String estimatedArrivalStartTime,
-        String estimatedArrivalEndTime
+        String estimatedArrivalEndTime,
+        Integer estimatedArrivalStartMinute,
+        Integer estimatedArrivalEndMinute
 ) {
 }
