@@ -1,4 +1,4 @@
-package com.ezmeal.product.domain.event;
+package com.ezmeal.product.domain.event.producer;
 
 import com.ezmeal.product.domain.event.payload.ProductCreatedEvent;
 import com.ezmeal.product.domain.event.payload.ProductDeletedEvent;

@@ -1,10 +1,9 @@
 package com.ezmeal.product.infrastruture.message.kafka.producer;
 
 import com.ezmeal.common.security.principal.CustomUserPrincipal;
-import com.ezmeal.product.domain.event.producer.ProductEventProducer;
-import com.ezmeal.product.domain.event.payload.ProductCreatedEvent;
-import com.ezmeal.product.domain.event.payload.ProductDeletedEvent;
-import com.ezmeal.product.domain.event.payload.ProductUpdatedEvent;
+import com.ezmeal.product.domain.event.payload.ProductReservationRestoreFailedEvent;
+import com.ezmeal.product.domain.event.payload.ProductReservationRestoredEvent;
+import com.ezmeal.product.domain.event.producer.ProductReservationEventProducer;
 import java.nio.charset.StandardCharsets;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,30 +13,21 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class ProductEventProducerImpl implements ProductEventProducer {
+public class ProductReservationEventProducerImpl implements ProductReservationEventProducer {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Override
-    public void publishCreatedEvent(ProductCreatedEvent event) {
-        // 헤더와 페이로드를 함께 담아서 보내는 sendWithHeaders를 사용
-        sendWithHeaders("product.created", event);
+    public void publishRestoredEvent(ProductReservationRestoredEvent event) {
+        sendWithHeaders("product.quantity.restored", event);
     }
 
     @Override
-    public void publishUpdatedEvent(ProductUpdatedEvent event) {
-// 헤더와 페이로드를 함께 담아서 보내는 sendWithHeaders를 사용
-        sendWithHeaders("product.updated", event);
-    }
-
-    @Override
-    public void publishDeletedEvent(ProductDeletedEvent event) {
-// 헤더와 페이로드를 함께 담아서 보내는 sendWithHeaders를 사용
-        sendWithHeaders("product.deleted", event);
+    public void publishRestoreFailedEvent(ProductReservationRestoreFailedEvent event) {
+        sendWithHeaders("product.quantity.restore.failed", event);
     }
 
     // 카프카 이벤트 헤더에 사용자 점보를 담는 메서드

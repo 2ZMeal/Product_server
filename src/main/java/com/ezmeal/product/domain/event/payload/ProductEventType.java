@@ -1,4 +1,4 @@
-package com.ezmeal.product.domain.event;
+package com.ezmeal.product.domain.event.payload;
 
 public enum ProductEventType {
     PRODUCT_CREATED,

@@ -31,6 +31,7 @@ public class OrderEventConsumer {
             productService.restoreReservedQuantity(message.productId(),message.orderId());
         } catch (JsonProcessingException e) {
             log.error("[Kafka] order.cancelled 메시지 파싱 실패. payload={}", payload, e);
+            throw new IllegalArgumentException("order.cancelled 메시지 파싱 실패", e);
         }
     }
 }

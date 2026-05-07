@@ -1,4 +1,4 @@
-@productId = 03679e65-d7f4-4da6-9c33-f52b21dca834
+@productId = b8e46837-ee7e-4670-829c-7622f54e7821
 @companyId = a2a43d96-902f-4c96-84d2-638173fd93d8
 
 ### 상품 생성
@@ -175,10 +175,11 @@ X-User-Email: other@company.com
 }
 
 ### 상품 수량 테스트 - 차감
-POST http://localhost:19083/internal/products/{{productId}}/order-quantity/reserve
+POST http://localhost:19083/internal/v1/products/{{productId}}/order-quantity/reserve
 Content-Type: application/json
 
 {
+  "orderId": "11111111-1111-1111-1111-111111111111",
   "quantity": 3
 }
 
