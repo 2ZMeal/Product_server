@@ -27,4 +27,9 @@ public class ProductReservationRepositoryImpl implements ProductReservationRepos
     public boolean existsByOrderIdAndProductId(UUID orderId, UUID productId) {
         return jpaProductReservationRepository.existsByOrderIdAndProductId(orderId, productId);
     }
+
+    @Override
+    public Optional<ProductReservation> findByOrderIdAndProductIdForUpdate(UUID orderId, UUID productId) {
+        return jpaProductReservationRepository.findByOrderIdAndProductIdForUpdate(orderId, productId);
+    }
 }

@@ -179,6 +179,10 @@ public class ProductService {
         Product product = productRepository.findByIdAndDeletedAtIsNullForUpdate(productId)
                 .orElseThrow(() -> new CustomException(ProductErrorCode.PRODUCT_NOT_FOUND));
 
+        if (productReservationRepository.existsByOrderIdAndProductId(orderId, productId)) {
+            return;
+        }
+
         if (product.getMaxOrderCount() < quantity) {
             throw new CustomException(ProductErrorCode.PRODUCT_ORDER_QUANTITY_EXCEEDED);
         }
@@ -195,7 +199,8 @@ public class ProductService {
     public void restoreReservedQuantity(UUID productId, UUID orderId) {
         validateReservationRequest(orderId);
 
-        ProductReservation reservation = productReservationRepository.findByOrderIdAndProductId(orderId, productId)
+        ProductReservation reservation = productReservationRepository
+                .findByOrderIdAndProductIdForUpdate(orderId, productId)
                 .orElseThrow(() -> new CustomException(ProductErrorCode.PRODUCT_NOT_FOUND));
 
         if (reservation.isRestored()) {
