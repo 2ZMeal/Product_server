@@ -15,8 +15,10 @@ import com.ezmeal.product.domain.exception.ProductErrorCode;
 import com.ezmeal.product.domain.model.companySnapShot.CompanySnapshot;
 import com.ezmeal.product.domain.model.product.Product;
 import com.ezmeal.product.domain.model.product.ProductMealPlan;
+import com.ezmeal.product.domain.model.productReservation.ProductReservation;
 import com.ezmeal.product.domain.repository.companySnapshot.CompanySnapshotRepository;
 import com.ezmeal.product.domain.repository.product.ProductRepository;
+import com.ezmeal.product.domain.repository.productReservation.ProductReservationRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -31,6 +33,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final CompanySnapshotRepository companySnapshotRepository;
+    private final ProductReservationRepository productReservationRepository;
 
     //상품 생성
     @Transactional
@@ -164,19 +167,54 @@ public class ProductService {
     }
 
     @Transactional
-    public void reserveOrderQuantity(UUID productId, Integer quantity) {
+    public void reserveOrderQuantity(UUID productId, UUID orderId, Integer quantity) {
+
+        validateReservationRequest(orderId);
+        validateOrderQuantity(quantity);
+
+        if (productReservationRepository.existsByOrderIdAndProductId(orderId, productId)) {
+            return;
+        }
+
         Product product = productRepository.findByIdAndDeletedAtIsNullForUpdate(productId)
                 .orElseThrow(() -> new CustomException(ProductErrorCode.PRODUCT_NOT_FOUND));
 
-        validateOrderQuantity(quantity);
+        if (productReservationRepository.existsByOrderIdAndProductId(orderId, productId)) {
+            return;
+        }
 
         if (product.getMaxOrderCount() < quantity) {
             throw new CustomException(ProductErrorCode.PRODUCT_ORDER_QUANTITY_EXCEEDED);
         }
 
         product.reserveOrderQuantity(quantity);
+
+        productReservationRepository.save(
+                new ProductReservation(orderId, productId, quantity)
+        );
+
     }
 
+    @Transactional
+    public void restoreReservedQuantity(UUID productId, UUID orderId) {
+        validateReservationRequest(orderId);
+
+        ProductReservation reservation = productReservationRepository
+                .findByOrderIdAndProductIdForUpdate(orderId, productId)
+                .orElseThrow(() -> new CustomException(ProductErrorCode.PRODUCT_NOT_FOUND));
+
+        if (reservation.isRestored()) {
+            return;
+        }
+
+        Product product = productRepository.findByIdAndDeletedAtIsNullForUpdate(productId)
+                .orElseThrow(() -> new CustomException(ProductErrorCode.PRODUCT_NOT_FOUND));
+
+        product.restoreOrderQuantity(reservation.getQuantity());
+        reservation.restore();
+    }
+
+    //api 테스트용
     @Transactional
     public void restoreOrderQuantity(UUID productId, Integer quantity) {
         Product product = productRepository.findByIdAndDeletedAtIsNullForUpdate(productId)
@@ -190,6 +228,12 @@ public class ProductService {
     private void validateOrderQuantity(Integer quantity) {
         if (quantity == null || quantity <= 0) {
             throw new CustomException(ProductErrorCode.PRODUCT_ORDER_QUANTITY_INVALID);
+        }
+    }
+
+    private void validateReservationRequest(UUID orderId) {
+        if (orderId == null) {
+            throw new CustomException(ProductErrorCode.PRODUCT_INVALID_REQUEST);
         }
     }
 
