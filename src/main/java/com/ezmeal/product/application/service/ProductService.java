@@ -10,6 +10,7 @@ import com.ezmeal.product.application.response.ProductResponse;
 import com.ezmeal.product.domain.event.payload.ProductCreatedEvent;
 import com.ezmeal.product.domain.event.payload.ProductDeletedEvent;
 import com.ezmeal.product.domain.event.payload.ProductMealPlanEventPayload;
+import com.ezmeal.product.domain.event.payload.ProductReservationRestoredEvent;
 import com.ezmeal.product.domain.event.payload.ProductUpdatedEvent;
 import com.ezmeal.product.domain.exception.ProductErrorCode;
 import com.ezmeal.product.domain.model.companySnapShot.CompanySnapshot;
@@ -212,6 +213,11 @@ public class ProductService {
 
         product.restoreOrderQuantity(reservation.getQuantity());
         reservation.restore();
+
+        ProductReservationRestoredEvent event = ProductReservationRestoredEvent.of(reservation.getOrderId(),
+                reservation.getProductId(), reservation.getQuantity());
+        applicationEventPublisher.publishEvent(event);
+
     }
 
     //api 테스트용

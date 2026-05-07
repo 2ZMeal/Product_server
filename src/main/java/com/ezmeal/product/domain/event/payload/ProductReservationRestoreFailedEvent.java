@@ -10,18 +10,20 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ProductDeletedEvent {
-
+public class ProductReservationRestoreFailedEvent {
     private UUID eventId;
-    private ProductEventType productEventType;
     private OffsetDateTime occurredAt;
+    private UUID orderId;
     private UUID productId;
-    private UUID companyId;
+    private String reason;
 
-    public static ProductDeletedEvent of(UUID productId, UUID companyId
-    ) {
-        return new ProductDeletedEvent(UUID.randomUUID(),
-                ProductEventType.PRODUCT_DELETED,
-                OffsetDateTime.now(), productId, companyId);
+    public static ProductReservationRestoreFailedEvent of(UUID orderId, UUID productId, String reason) {
+        return new ProductReservationRestoreFailedEvent(
+                UUID.randomUUID(),
+                OffsetDateTime.now(),
+                orderId,
+                productId,
+                reason
+        );
     }
 }

@@ -3,6 +3,7 @@ package com.ezmeal.product.presentation;
 import com.ezmeal.common.response.CommonApiResponse;
 import com.ezmeal.product.application.request.ProductOrderCountRequest;
 import com.ezmeal.product.application.service.ProductService;
+import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ public class ProductInternalController {
     @PostMapping("/{productId}/order-quantity/reserve")
     public ResponseEntity<CommonApiResponse<Void>> reserveOrderQuantity(
             @PathVariable UUID productId,
-            @RequestBody ProductOrderCountRequest request
+            @RequestBody @Valid ProductOrderCountRequest request
     ) {
         productService.reserveOrderQuantity(productId, request.orderId(), request.quantity());
 

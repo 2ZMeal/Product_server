@@ -1,9 +1,10 @@
 package com.ezmeal.product.application.request;
 
+import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 
 public record ProductOrderCountRequest(
-        UUID orderId,
-        Integer quantity
+        @NotNull UUID orderId,
+        @NotNull Integer quantity
 ) {
 }
