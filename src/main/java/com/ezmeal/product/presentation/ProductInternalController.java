@@ -24,11 +24,13 @@ public class ProductInternalController {
             @PathVariable UUID productId,
             @RequestBody ProductOrderCountRequest request
     ) {
-        productService.reserveOrderQuantity(productId, request.quantity());
+        productService.reserveOrderQuantity(productId, request.orderId(), request.quantity());
 
         return ResponseEntity.ok(CommonApiResponse.success());
     }
 
+
+    // api 테스트용
     @PostMapping("/{productId}/order-quantity/restore")
     public ResponseEntity<CommonApiResponse<Void>> restoreOrderQuantity(
             @PathVariable UUID productId,
