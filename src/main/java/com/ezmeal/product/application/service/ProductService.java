@@ -246,6 +246,10 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public List<ProductInfo> getProductsByIds(List<UUID> productIds) {
+        if (productIds == null || productIds.isEmpty()) {
+            throw new CustomException(ProductErrorCode.PRODUCT_INVALID_REQUEST);
+        }
+
         return productRepository.findAllByIdInAndDeletedAtIsNull(productIds).stream()
                 .map(ProductInfo::from)
                 .toList();
