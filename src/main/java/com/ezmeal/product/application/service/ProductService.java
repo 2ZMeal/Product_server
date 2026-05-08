@@ -6,6 +6,7 @@ import com.ezmeal.product.application.request.ProductCreateRequest;
 import com.ezmeal.product.application.request.ProductMealPlanCreateRequest;
 import com.ezmeal.product.application.request.ProductMealPlanUpdateRequest;
 import com.ezmeal.product.application.request.ProductUpdateRequest;
+import com.ezmeal.product.application.response.ProductInfo;
 import com.ezmeal.product.application.response.ProductResponse;
 import com.ezmeal.product.domain.event.payload.ProductCreatedEvent;
 import com.ezmeal.product.domain.event.payload.ProductDeletedEvent;
@@ -243,4 +244,10 @@ public class ProductService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public List<ProductInfo> getProductsByIds(List<UUID> productIds) {
+        return productRepository.findAllByIdInAndDeletedAtIsNull(productIds).stream()
+                .map(ProductInfo::from)
+                .toList();
+    }
 }

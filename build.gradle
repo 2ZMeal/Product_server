@@ -39,7 +39,7 @@ dependencies {
 
 	implementation 'org.springframework.data:spring-data-elasticsearch:5.4.1' // ElasticSearch 연동을 위함
 	// 공통 모듈
-	implementation 'com.ezmeal:common:0.0.5'
+	implementation 'com.ezmeal:common:0.0.7'
 
 	//querydsl
 	annotationProcessor 'com.querydsl:querydsl-apt:5.1.0:jakarta'
