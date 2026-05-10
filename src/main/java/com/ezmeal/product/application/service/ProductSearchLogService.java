@@ -29,6 +29,6 @@ public class ProductSearchLogService {
     }
 
     private boolean hasKeyword(ProductSearchRequest request) {
-        return request.keyword() != null && !request.keyword().isBlank();
+        return request != null && request.keyword() != null && !request.keyword().isBlank();
     }
 }
