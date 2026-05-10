@@ -1,5 +1,6 @@
-package com.ezmeal.product.presentation;
+package com.ezmeal.product.presentation.controller;
 
+import com.ezmeal.common.exception.CustomException;
 import com.ezmeal.common.response.CommonApiResponse;
 import com.ezmeal.common.security.principal.CustomUserPrincipal;
 import com.ezmeal.product.application.request.ProductCreateRequest;
@@ -8,8 +9,11 @@ import com.ezmeal.product.application.request.ProductUpdateRequest;
 import com.ezmeal.product.application.response.PageResponse;
 import com.ezmeal.product.application.response.ProductResponse;
 import com.ezmeal.product.application.response.ProductSearchResponse;
+import com.ezmeal.product.application.service.ProductRecommendationService;
 import com.ezmeal.product.application.service.ProductSearchService;
 import com.ezmeal.product.application.service.ProductService;
+import com.ezmeal.product.domain.exception.ProductErrorCode;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -32,6 +36,7 @@ public class ProductController {
 
     private final ProductService productService;
     private final ProductSearchService productSearchService;
+    private final ProductRecommendationService productRecommendationService;
 
 
     @PostMapping
@@ -64,6 +69,25 @@ public class ProductController {
                 request);
 
         return ResponseEntity.ok(CommonApiResponse.success("상품 목록을 조회했습니다.", response));
+    }
+
+    @GetMapping("/recommendations/me")
+    public ResponseEntity<CommonApiResponse<List<ProductSearchResponse>>> recommendProducts(
+            Authentication authentication
+    ) {
+        if (!(authentication != null
+                && authentication.isAuthenticated()
+                && authentication.getPrincipal() instanceof CustomUserPrincipal principal)) {
+            throw new CustomException(ProductErrorCode.PRODUCT_RECOMMENDATION_LOGIN_REQUIRED);
+        }
+
+        List<ProductSearchResponse> response = productRecommendationService
+                .recommendProducts(principal.getUserId())
+                .stream()
+                .map(ProductSearchResponse::from)
+                .toList();
+
+        return ResponseEntity.ok(CommonApiResponse.success("추천 상품 목록을 조회했습니다.", response));
     }
 
     @GetMapping("/{productId}")

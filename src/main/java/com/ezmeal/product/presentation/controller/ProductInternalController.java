@@ -1,4 +1,4 @@
-package com.ezmeal.product.presentation;
+package com.ezmeal.product.presentation.controller;
 
 import com.ezmeal.common.response.CommonApiResponse;
 import com.ezmeal.product.application.request.ProductOrderCountRequest;
