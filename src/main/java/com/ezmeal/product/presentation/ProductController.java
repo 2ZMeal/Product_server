@@ -49,9 +49,19 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<CommonApiResponse<PageResponse<ProductSearchResponse>>> searchProducts(
-            @ModelAttribute ProductSearchRequest request
+            @ModelAttribute ProductSearchRequest request,
+            Authentication authentication
     ) {
-        PageResponse<ProductSearchResponse> response = productSearchService.searchProducts(request);
+        String userId = null;
+
+        if (authentication != null
+                && authentication.isAuthenticated()
+                && authentication.getPrincipal() instanceof CustomUserPrincipal principal) {
+            userId = principal.getUserId();
+        }
+
+        PageResponse<ProductSearchResponse> response = productSearchService.searchProducts(userId,
+                request);
 
         return ResponseEntity.ok(CommonApiResponse.success("상품 목록을 조회했습니다.", response));
     }
