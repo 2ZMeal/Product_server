@@ -1,17 +1,19 @@
-@productId = b8e46837-ee7e-4670-829c-7622f54e7821
-@companyId = a2a43d96-902f-4c96-84d2-638173fd93d8
+@productHost = http://localhost:19083
+@companyId = 34cd26d4-fbf7-4fb8-8a92-267debab5a0a
+@productId = 615bcbf4-76e3-40c4-8d34-76dd72d7688b
+@orderId = 99999999-9999-9999-9999-999999999999
 
-### 상품 생성
-POST http://localhost:19083/api/v1/products
+### 1. 상품 생성
+POST {{productHost}}/api/v1/products
 Content-Type: application/json
 X-User-Id: 11111111-1111-1111-1111-111111111111
 X-User-Roles: COMPANY
 X-User-Email: test@google.com
 
 {
-  "companyId": "a2a43d96-902f-4c96-84d2-638173fd93d8",
-  "name": "한식 아침 월수금 패키지2435235",
-  "description": "든든한 한식 아침 도시락 구독 상품",
+  "companyId": "{{companyId}}",
+  "name": "통합테스트 아침 한식 도시락",
+  "description": "Kafka Outbox와 Elasticsearch 통합 테스트용 상품",
   "price": 89000,
   "maxOrderCount": 50,
   "category": "KOREAN",
@@ -38,38 +40,49 @@ X-User-Email: test@google.com
   ]
 }
 
-### 상품 목록 조회
-GET http://localhost:19083/api/v1/products
+### 2. 상품 상세 조회
+GET {{productHost}}/api/v1/products/{{productId}}
 
-### 상품 목록 조회 - 카테고리
-GET http://localhost:19083/api/v1/products?category=KOREAN
+### 3. ES 검색 로그 테스트 - 키워드 검색
+GET {{productHost}}/api/v1/products?keyword=한식&page=0&size=10
+X-User-Id: 11111111-1111-1111-1111-111111111111
+X-User-Roles: COMPANY
+X-User-Email: test@google.com
 
-### 상품 목록 조회 - 키워드
-GET http://localhost:19083/api/v1/products?keyword=한식
+### 4. ES 검색 로그 테스트 - 카테고리 검색
+GET {{productHost}}/api/v1/products?category=KOREAN&page=0&size=10
+X-User-Id: 11111111-1111-1111-1111-111111111111
+X-User-Roles: COMPANY
+X-User-Email: test@google.com
 
-### 상품 목록 조회 - 가격 범위
-GET http://localhost:19083/api/v1/products?minPrice=80000&maxPrice=90000
+### 5. ES 검색 로그 테스트 - 배송지역 + 식사시간 검색
+GET {{productHost}}/api/v1/products?region=GANGNAM&mealPeriod=BREAKFAST&page=0&size=10
+X-User-Id: 11111111-1111-1111-1111-111111111111
+X-User-Roles: COMPANY
+X-User-Email: test@google.com
 
-### 상품 배송시간 조회 - 시간 범위
-GET http://localhost:19083/api/v1/products?region=GANGNAM&arrivalStartTime=07:30&arrivalEndTime=08:30
+### 6. ES 검색 로그 테스트 - 가격 범위 검색
+GET {{productHost}}/api/v1/products?minPrice=80000&maxPrice=90000&page=0&size=10
+X-User-Id: 11111111-1111-1111-1111-111111111111
+X-User-Roles: COMPANY
+X-User-Email: test@google.com
 
-### 상품 배송시간 조회 - 실패
-GET http://localhost:19083/api/v1/products?region=GANGNAM&arrivalStartTime=08:10&arrivalEndTime=08:30
+### 7. ES 검색 로그 테스트 - 도착 시간 검색
+GET {{productHost}}/api/v1/products?region=GANGNAM&arrivalStartTime=07:00&arrivalEndTime=08:30&page=0&size=10
+X-User-Id: 11111111-1111-1111-1111-111111111111
+X-User-Roles: COMPANY
+X-User-Email: test@google.com
 
-### 상품 상세 조회
-GET http://localhost:19083/api/v1/products/{{productId}}
-
-
-### 상품 수정 - 기본 정보만 수정, 식단 유지
-PATCH http://localhost:19083/api/v1/products/{{productId}}
+### 8. 상품 수정 - ES products 갱신 확인용
+PATCH {{productHost}}/api/v1/products/{{productId}}
 Content-Type: application/json
 X-User-Id: 11111111-1111-1111-1111-111111111111
 X-User-Roles: COMPANY
 X-User-Email: test@google.com
 
 {
-  "name": "한식 아침 월수금 프리미엄 패키지",
-  "description": "든든한 프리미엄 한식 아침 도시락",
+  "name": "통합테스트 프리미엄 한식 도시락",
+  "description": "수정된 Elasticsearch 인덱싱 확인용 상품",
   "price": 99000,
   "maxOrderCount": 40,
   "category": "KOREAN",
@@ -77,126 +90,41 @@ X-User-Email: test@google.com
   "mealPlans": null
 }
 
-
-### 상품 수정 - 식단 전체 교체
-PATCH http://localhost:19083/api/v1/products/{{productId}}
-Content-Type: application/json
+### 9. 수정 후 검색 확인
+GET {{productHost}}/api/v1/products?keyword=프리미엄&page=0&size=10
 X-User-Id: 11111111-1111-1111-1111-111111111111
 X-User-Roles: COMPANY
 X-User-Email: test@google.com
 
-{
-  "name": "한식 아침 화목 패키지",
-  "description": "화목 제공 한식 아침 도시락",
-  "price": 69000,
-  "maxOrderCount": 30,
-  "category": "KOREAN",
-  "mealPeriod": "BREAKFAST",
-  "mealPlans": [
-    {
-      "dayOfWeek": "TUESDAY",
-      "menuName": "닭갈비 도시락",
-      "allergyInfo": "닭고기, 대두",
-      "nutritionInfo": "700kcal"
-    },
-    {
-      "dayOfWeek": "THURSDAY",
-      "menuName": "간장불고기 도시락",
-      "allergyInfo": "돼지고기, 대두, 밀",
-      "nutritionInfo": "730kcal"
-    }
-  ]
-}
-
-
-### 상품 생성 실패 테스트 - mealPlans 빈 배열
-POST http://localhost:19083/api/v1/products
-Content-Type: application/json
-X-User-Id: 11111111-1111-1111-1111-111111111111
-X-User-Roles: COMPANY
-X-User-Email: test@google.com
-
-{
-  "companyId": "a2a43d96-902f-4c96-84d2-638173fd93d8",
-  "name": "빈 식단 상품",
-  "description": "실패해야 하는 요청",
-  "price": 10000,
-  "maxOrderCount": 10,
-  "category": "KOREAN",
-  "mealPeriod": "BREAKFAST",
-  "mealPlans": []
-}
-
-
-### 상품 생성 실패 테스트 - 같은 요일 중복
-POST http://localhost:19083/api/v1/products
-Content-Type: application/json
-X-User-Id: test-admin
-X-User-Role: ADMIN
-
-{
-  "companyId": "11111111-1111-1111-1111-111111111111",
-  "name": "요일 중복 상품",
-  "description": "실패해야 하는 요청",
-  "price": 10000,
-  "maxOrderCount": 10,
-  "category": "KOREAN",
-  "mealPeriod": "BREAKFAST",
-  "mealPlans": [
-    {
-      "dayOfWeek": "MONDAY",
-      "menuName": "불고기 도시락",
-      "allergyInfo": "대두",
-      "nutritionInfo": "650kcal"
-    },
-    {
-      "dayOfWeek": "MONDAY",
-      "menuName": "제육 도시락",
-      "allergyInfo": "돼지고기",
-      "nutritionInfo": "720kcal"
-    }
-  ]
-}
-### 상품 수정 실패 테스트 -권한 검증
-PATCH http://localhost:19083/api/v1/products/{{productId}}
-Content-Type: application/json
-X-User-Id: 22222222-2222-2222-2222-222222222222
-X-User-Roles: COMPANY
-X-User-Email: other@company.com
-
-{
-  "name": "권한 실패 테스트",
-  "description": "다른 업체 관리자가 수정 시도",
-  "price": 99000,
-  "maxOrderCount": 40,
-  "category": "KOREAN",
-  "mealPeriod": "BREAKFAST",
-  "mealPlans": null
-}
-
-### 상품 수량 테스트 - 차감
-POST http://localhost:19083/internal/v1/products/{{productId}}/order-quantity/reserve
+### 10. 주문 수량 예약
+POST {{productHost}}/internal/v1/products/{{productId}}/order-quantity/reserve
 Content-Type: application/json
 
 {
-  "orderId": "11111111-1111-1111-1111-111111111111",
+  "orderId": "{{orderId}}",
   "quantity": 3
 }
 
-### 상품 수량 테스트 - 복구
-POST http://localhost:19083/internal/products/{{productId}}/order-quantity/restore
+### 11. 주문 수량 복구 API 테스트용
+POST {{productHost}}/internal/v1/products/{{productId}}/order-quantity/restore
 Content-Type: application/json
 
 {
+  "orderId": "{{orderId}}",
   "quantity": 3
 }
 
-
-### 상품 삭제
-DELETE http://localhost:19083/api/v1/products/{{productId}}
+### 12. 상품 삭제 - ES products 삭제 확인용
+DELETE {{productHost}}/api/v1/products/{{productId}}
 X-User-Id: 11111111-1111-1111-1111-111111111111
 X-User-Roles: COMPANY
 X-User-Email: test@google.com
 
-### 삭제 후 조회 실패 확인
-GET http://localhost:19083/api/v1/products/{{productId}}
+### 13. 삭제 후 상세 조회 실패 확인
+GET {{productHost}}/api/v1/products/{{productId}}
+
+### 14. 삭제 후 검색 제외 확인
+GET {{productHost}}/api/v1/products?keyword=프리미엄&page=0&size=10
+X-User-Id: 11111111-1111-1111-1111-111111111111
+X-User-Roles: COMPANY
+X-User-Email: test@google.com

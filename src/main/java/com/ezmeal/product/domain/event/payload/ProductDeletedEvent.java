@@ -1,6 +1,6 @@
 package com.ezmeal.product.domain.event.payload;
 
-import java.time.OffsetDateTime;
+import com.ezmeal.common.message.DomainEvent;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -10,18 +10,13 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ProductDeletedEvent {
+public class ProductDeletedEvent implements DomainEvent {
 
-    private UUID eventId;
-    private ProductEventType productEventType;
-    private OffsetDateTime occurredAt;
     private UUID productId;
     private UUID companyId;
 
     public static ProductDeletedEvent of(UUID productId, UUID companyId
     ) {
-        return new ProductDeletedEvent(UUID.randomUUID(),
-                ProductEventType.PRODUCT_DELETED,
-                OffsetDateTime.now(), productId, companyId);
+        return new ProductDeletedEvent(productId, companyId);
     }
 }

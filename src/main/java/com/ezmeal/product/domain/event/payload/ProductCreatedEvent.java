@@ -1,9 +1,9 @@
 package com.ezmeal.product.domain.event.payload;
 
+import com.ezmeal.common.message.DomainEvent;
 import com.ezmeal.product.domain.model.product.ProductCategory;
 import com.ezmeal.product.domain.model.product.ProductMealPeriod;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 import lombok.AccessLevel;
@@ -14,11 +14,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ProductCreatedEvent {
+public class ProductCreatedEvent implements DomainEvent {
 
-    private UUID eventId;
-    private ProductEventType productEventType;
-    private OffsetDateTime occurredAt;
     private UUID productId;
     private UUID companyId;
     private String productName;
@@ -37,9 +34,8 @@ public class ProductCreatedEvent {
                                          List<ProductMealPlanEventPayload> mealPlans, LocalDateTime createdAt,
                                          LocalDateTime modifiedAt
     ) {
-        return new ProductCreatedEvent(UUID.randomUUID(),
-                ProductEventType.PRODUCT_CREATED,
-                OffsetDateTime.now(), productId, companyId, productName, productDescription, price, category,
+        return new ProductCreatedEvent(
+                productId, companyId, productName, productDescription, price, category,
                 mealPeriod,
                 maxOrderCount, mealPlans, createdAt, modifiedAt);
     }
