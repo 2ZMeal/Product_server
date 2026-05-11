@@ -13,6 +13,8 @@ import com.ezmeal.product.domain.event.payload.ProductDeletedEvent;
 import com.ezmeal.product.domain.event.payload.ProductMealPlanEventPayload;
 import com.ezmeal.product.domain.event.payload.ProductReservationRestoredEvent;
 import com.ezmeal.product.domain.event.payload.ProductUpdatedEvent;
+import com.ezmeal.product.domain.event.producer.ProductEventProducer;
+import com.ezmeal.product.domain.event.producer.ProductReservationEventProducer;
 import com.ezmeal.product.domain.exception.ProductErrorCode;
 import com.ezmeal.product.domain.model.companySnapShot.CompanySnapshot;
 import com.ezmeal.product.domain.model.product.Product;
@@ -33,9 +35,11 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ProductService {
     private final ProductRepository productRepository;
-    private final ApplicationEventPublisher applicationEventPublisher;
     private final CompanySnapshotRepository companySnapshotRepository;
     private final ProductReservationRepository productReservationRepository;
+    private final ProductEventProducer productEventProducer;
+    private final ProductReservationEventProducer productReservationEventProducer;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     //상품 생성
     @Transactional
@@ -70,6 +74,7 @@ public class ProductService {
                 productSaved.getName(), productSaved.getDescription(), productSaved.getPrice(),
                 productSaved.getCategory(), productSaved.getMealPeriod(), productSaved.getMaxOrderCount(), mealPlans,
                 productSaved.getCreatedAt(), productSaved.getModifiedAt());
+        productEventProducer.publishCreatedEvent(event);
         applicationEventPublisher.publishEvent(event);
 
         return ProductResponse.from(productSaved);
@@ -114,6 +119,7 @@ public class ProductService {
         ProductUpdatedEvent event = ProductUpdatedEvent.of(product.getId(), product.getCompanyId(), product.getName(),
                 product.getDescription(), product.getPrice(), product.getCategory(), product.getMealPeriod(),
                 product.getMaxOrderCount(), mealPlans, product.getCreatedAt(), product.getModifiedAt());
+        productEventProducer.publishUpdatedEvent(event);
         applicationEventPublisher.publishEvent(event);
 
         return ProductResponse.from(product);
@@ -134,6 +140,7 @@ public class ProductService {
         product.delete(userId);
 
         ProductDeletedEvent event = ProductDeletedEvent.of(product.getId(), product.getCompanyId());
+        productEventProducer.publishDeletedEvent(event);
         applicationEventPublisher.publishEvent(event);
     }
 
@@ -217,7 +224,7 @@ public class ProductService {
 
         ProductReservationRestoredEvent event = ProductReservationRestoredEvent.of(reservation.getOrderId(),
                 reservation.getProductId(), reservation.getQuantity());
-        applicationEventPublisher.publishEvent(event);
+        productReservationEventProducer.publishRestoredEvent(event);
 
     }
 

@@ -1,10 +1,10 @@
 package com.ezmeal.product.infrastruture.message.kafka.consumer;
 
+import com.ezmeal.common.message.EventEnvelope;
+import com.ezmeal.common.message.inbox.InboxProcessor;
 import com.ezmeal.product.application.message.CompanyDeletedMessage;
 import com.ezmeal.product.application.message.CompanySnapshotUpdatedMessage;
 import com.ezmeal.product.application.service.CompanySnapshotService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -15,37 +15,25 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CompanyEventConsumer {
     private final CompanySnapshotService companySnapshotService;
-    private final ObjectMapper objectMapper;
+    private final InboxProcessor inboxProcessor;
 
-    @KafkaListener(topics = "company.snapshot.updated", groupId = "product-group")
-    public void handleCompanySnapshotUpdated(String payload) {
-        try {
-            CompanySnapshotUpdatedMessage message =
-                    objectMapper.readValue(payload, CompanySnapshotUpdatedMessage.class);
+    @KafkaListener(topics = "company.snapshot.updated", groupId = "company-group")
+    public void handleCompanySnapshotUpdated(EventEnvelope<CompanySnapshotUpdatedMessage> envelope) {
+        inboxProcessor.processOnce(envelope.eventId(), () -> {
+            CompanySnapshotUpdatedMessage payload = envelope.payload();
+            log.info("수신된 이벤트 ID : {} ", envelope.eventId());
+            companySnapshotService.upsert(payload);
 
-            log.info("[Kafka] company.snapshot.updated 수신. companyId={}, eventId={}",
-                    message.companyId(),
-                    message.eventId());
-
-            companySnapshotService.upsert(message);
-        } catch (JsonProcessingException e) {
-            log.error("[Kafka] company.snapshot.updated 메시지 파싱 실패. payload={}", payload, e);
-        }
+        });
     }
 
-    @KafkaListener(topics = "company.deleted", groupId = "product-group")
-    public void handleCompanyDeleted(String payload) {
-        try {
-            CompanyDeletedMessage message =
-                    objectMapper.readValue(payload, CompanyDeletedMessage.class);
+    //원본데이터가 아니므로 KAFKA로 삭제되었다는 문구만 남김.
+    @KafkaListener(topics = "company.deleted", groupId = "company-group")
+    public void handleCompanyDeleted(EventEnvelope<CompanyDeletedMessage> envelope) {
+        inboxProcessor.processOnce(envelope.eventId(), () -> {
+            CompanyDeletedMessage payload = envelope.payload();
 
-            log.info("[Kafka] company.deleted 수신. companyId={}, eventId={}",
-                    message.companyId(),
-                    message.eventId());
-
-            companySnapshotService.delete(message.companyId(), "KAFKA");
-        } catch (JsonProcessingException e) {
-            log.error("[Kafka] company.deleted 메시지 파싱 실패. payload={}", payload, e);
-        }
+            companySnapshotService.delete(payload.companyId(), "KAFKA");
+        });
     }
 }
