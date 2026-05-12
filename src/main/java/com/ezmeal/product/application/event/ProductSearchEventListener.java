@@ -11,13 +11,16 @@ import com.ezmeal.product.domain.event.payload.ProductMealPlanEventPayload;
 import com.ezmeal.product.domain.event.payload.ProductUpdatedEvent;
 import com.ezmeal.product.domain.exception.ProductErrorCode;
 import com.ezmeal.product.domain.model.companySnapShot.CompanySnapshot;
+import com.ezmeal.product.domain.model.product.Product;
 import com.ezmeal.product.domain.repository.companySnapshot.CompanySnapshotRepository;
+import com.ezmeal.product.domain.repository.product.ProductRepository;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
@@ -27,6 +30,7 @@ public class ProductSearchEventListener {
 
     private final ProductSearchIndexer productSearchIndexer;
     private final CompanySnapshotRepository companySnapshotRepository;
+    private final ProductRepository productRepository;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleProductCreated(ProductCreatedEvent event) {
@@ -43,6 +47,16 @@ public class ProductSearchEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleProductDeleted(ProductDeletedEvent event) {
         productSearchIndexer.delete(event.getProductId().toString());
+    }
+
+    @Transactional(readOnly = true)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handleProductStockChanged(ProductStockChangedEvent event) {
+        Product product = productRepository.findByIdAndDeletedAtIsNull(event.productId())
+                .orElseThrow(() -> new CustomException(ProductErrorCode.PRODUCT_NOT_FOUND));
+
+        ProductSearchIndexCommand command = toCommand(product);
+        productSearchIndexer.save(command);
     }
 
     private ProductSearchIndexCommand toCommand(ProductCreatedEvent event) {
@@ -155,5 +169,25 @@ public class ProductSearchEventListener {
 
     private int toMinute(LocalTime time) {
         return time.getHour() * 60 + time.getMinute();
+    }
+
+    private ProductSearchIndexCommand toCommand(Product product) {
+        List<ProductMealPlanEventPayload> mealPlans = product.getMealPlans().stream()
+                .map(ProductMealPlanEventPayload::from)
+                .toList();
+
+        return toCommand(
+                product.getId(),
+                product.getCompanyId(),
+                product.getName(),
+                product.getDescription(),
+                product.getPrice(),
+                product.getMaxOrderCount(),
+                product.getCategory().name(),
+                product.getMealPeriod().name(),
+                mealPlans,
+                product.getCreatedAt(),
+                product.getModifiedAt()
+        );
     }
 }
