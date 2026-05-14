@@ -1,6 +1,7 @@
 package com.ezmeal.product.application.search.log;
 
 import com.ezmeal.product.application.request.ProductSearchRequest;
+import com.ezmeal.product.domain.event.payload.ProductSearchLoggedEvent;
 import java.time.LocalDateTime;
 
 public record ProductSearchLogCommand(
@@ -24,6 +25,19 @@ public record ProductSearchLogCommand(
                 request.minPrice(),
                 request.maxPrice(),
                 LocalDateTime.now()
+        );
+    }
+
+    public static ProductSearchLogCommand from(ProductSearchLoggedEvent event) {
+        return new ProductSearchLogCommand(
+                event.getUserId(),
+                event.getKeyword(),
+                event.getCategory(),
+                event.getMealPeriod(),
+                event.getRegion(),
+                event.getMinPrice(),
+                event.getMaxPrice(),
+                event.getSearchedAt()
         );
     }
 
