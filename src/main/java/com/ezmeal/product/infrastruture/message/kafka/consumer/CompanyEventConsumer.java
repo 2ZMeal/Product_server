@@ -17,18 +17,17 @@ public class CompanyEventConsumer {
     private final CompanySnapshotService companySnapshotService;
     private final InboxProcessor inboxProcessor;
 
-    @KafkaListener(topics = "company.snapshot.updated", groupId = "company-group")
+    @KafkaListener(topics = "company.snapshot.updated", groupId = "product-group")
     public void handleCompanySnapshotUpdated(EventEnvelope<CompanySnapshotUpdatedMessage> envelope) {
         inboxProcessor.processOnce(envelope.eventId(), () -> {
             CompanySnapshotUpdatedMessage payload = envelope.payload();
-            log.info("수신된 이벤트 ID : {} ", envelope.eventId());
             companySnapshotService.upsert(payload);
 
         });
     }
 
     //원본데이터가 아니므로 KAFKA로 삭제되었다는 문구만 남김.
-    @KafkaListener(topics = "company.deleted", groupId = "company-group")
+    @KafkaListener(topics = "company.deleted", groupId = "product-group")
     public void handleCompanyDeleted(EventEnvelope<CompanyDeletedMessage> envelope) {
         inboxProcessor.processOnce(envelope.eventId(), () -> {
             CompanyDeletedMessage payload = envelope.payload();
