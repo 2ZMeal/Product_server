@@ -33,7 +33,7 @@ public class ProductSearchLogService {
 
             // 검색 로그 이벤트 발행 실패가 검색 응답에 영향을 주지 않도록 예외를 삼킨다.
         } catch (Exception e) {
-            log.warn("검색 로그 이벤트 발행 실패. userId={}, keyword={}", userId, request.keyword(), e);
+            log.warn("검색 로그 이벤트 발행 실패.", e);
         }
     }
 
