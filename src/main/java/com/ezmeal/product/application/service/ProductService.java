@@ -2,6 +2,7 @@ package com.ezmeal.product.application.service;
 
 import com.ezmeal.common.enums.Role;
 import com.ezmeal.common.exception.CustomException;
+import com.ezmeal.product.application.event.ProductStockChangedEvent;
 import com.ezmeal.product.application.request.ProductCreateRequest;
 import com.ezmeal.product.application.request.ProductMealPlanCreateRequest;
 import com.ezmeal.product.application.request.ProductMealPlanUpdateRequest;
@@ -202,6 +203,8 @@ public class ProductService {
                 new ProductReservation(orderId, productId, quantity)
         );
 
+        applicationEventPublisher.publishEvent(ProductStockChangedEvent.of(product.getId()));
+
     }
 
     @Transactional
@@ -226,6 +229,8 @@ public class ProductService {
                 reservation.getProductId(), reservation.getQuantity());
         productReservationEventProducer.publishRestoredEvent(event);
 
+        applicationEventPublisher.publishEvent(ProductStockChangedEvent.of(product.getId()));
+
     }
 
     //api 테스트용
@@ -237,6 +242,8 @@ public class ProductService {
         validateOrderQuantity(quantity);
 
         product.restoreOrderQuantity(quantity);
+
+        applicationEventPublisher.publishEvent(ProductStockChangedEvent.of(product.getId()));
     }
 
     private void validateOrderQuantity(Integer quantity) {
