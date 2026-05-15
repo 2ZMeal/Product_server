@@ -29,11 +29,14 @@ public class ProductSearchLogEventProducerImpl implements ProductSearchLogEventP
                             event
                     );
 
-            long start = System.currentTimeMillis();
+            long serializeStart = System.currentTimeMillis();
 
             String payload = objectMapper.writeValueAsString(envelope);
 
-            log.info("product search log kafka send call elapsed={}ms", System.currentTimeMillis() - start);
+            log.info("product search log serialize elapsed={}ms",
+                    System.currentTimeMillis() - serializeStart);
+
+            long sendStart = System.currentTimeMillis();
 
             kafkaTemplate.send("product.search.logged", event.getUserId(), payload)
                     .whenComplete((result, ex) -> {
@@ -41,6 +44,10 @@ public class ProductSearchLogEventProducerImpl implements ProductSearchLogEventP
                             log.warn("검색 로그 이벤트 발행 실패.", ex);
                         }
                     });
+
+            log.info("product search log kafka send call elapsed={}ms",
+                    System.currentTimeMillis() - sendStart);
+
         } catch (JsonProcessingException e) {
             log.warn("검색 로그 이벤트 직렬화 실패.", e);
         }

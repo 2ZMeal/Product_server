@@ -17,9 +17,9 @@ public class ProductSearchService {
     private final ProductSearchReader productSearchReader;
     private final ProductSearchLogService productSearchLogService;
 
-    long start = System.currentTimeMillis();
-
     public PageResponse<ProductSearchResponse> searchProducts(String userId, ProductSearchRequest request) {
+        long start = System.currentTimeMillis();
+
         Page<ProductSearchResponse> page = productSearchReader.search(request)
                 .map(ProductSearchResponse::from);
 
