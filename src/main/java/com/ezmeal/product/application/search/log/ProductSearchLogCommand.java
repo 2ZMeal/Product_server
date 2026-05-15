@@ -31,10 +31,10 @@ public record ProductSearchLogCommand(
     public static ProductSearchLogCommand from(ProductSearchLoggedEvent event) {
         return new ProductSearchLogCommand(
                 event.getUserId(),
-                event.getKeyword(),
-                event.getCategory(),
-                event.getMealPeriod(),
-                event.getRegion(),
+                normalize(event.getKeyword()),
+                normalize(event.getCategory()),
+                normalize(event.getMealPeriod()),
+                normalize(event.getRegion()),
                 event.getMinPrice(),
                 event.getMaxPrice(),
                 event.getSearchedAt()
