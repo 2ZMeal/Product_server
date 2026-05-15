@@ -29,7 +29,11 @@ public class ProductSearchLogEventProducerImpl implements ProductSearchLogEventP
                             event
                     );
 
+            long start = System.currentTimeMillis();
+
             String payload = objectMapper.writeValueAsString(envelope);
+
+            log.info("product search log kafka send call elapsed={}ms", System.currentTimeMillis() - start);
 
             kafkaTemplate.send("product.search.logged", event.getUserId(), payload)
                     .whenComplete((result, ex) -> {

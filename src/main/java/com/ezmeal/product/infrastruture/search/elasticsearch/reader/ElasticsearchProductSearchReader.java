@@ -10,6 +10,7 @@ import com.ezmeal.product.infrastruture.search.elasticsearch.document.ProductSea
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -21,7 +22,7 @@ import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.stereotype.Component;
 
-
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class ElasticsearchProductSearchReader implements ProductSearchReader {
@@ -53,8 +54,12 @@ public class ElasticsearchProductSearchReader implements ProductSearchReader {
 
         NativeQuery query = buildQuery(request, pageRequest);
 
+        long start = System.currentTimeMillis();
+
         SearchHits<ProductSearchDocument> searchHits =
                 elasticsearchOperations.search(query, ProductSearchDocument.class);
+
+        log.info("product search es elapsed={}ms", System.currentTimeMillis() - start);
 
         List<ProductSearchResult> content = searchHits.getSearchHits().stream()
                 .map(SearchHit::getContent)
