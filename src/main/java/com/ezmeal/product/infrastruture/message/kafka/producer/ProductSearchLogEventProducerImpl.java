@@ -34,13 +34,11 @@ public class ProductSearchLogEventProducerImpl implements ProductSearchLogEventP
             kafkaTemplate.send("product.search.logged", event.getUserId(), payload)
                     .whenComplete((result, ex) -> {
                         if (ex != null) {
-                            log.warn("검색 로그 이벤트 발행 실패. userId={}, keyword={}",
-                                    event.getUserId(), event.getKeyword(), ex);
+                            log.warn("검색 로그 이벤트 발행 실패.", ex);
                         }
                     });
         } catch (JsonProcessingException e) {
-            log.warn("검색 로그 이벤트 직렬화 실패. userId={}, keyword={}",
-                    event.getUserId(), event.getKeyword(), e);
+            log.warn("검색 로그 이벤트 직렬화 실패.", e);
         }
     }
 }

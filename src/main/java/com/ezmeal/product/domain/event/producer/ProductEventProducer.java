@@ -2,7 +2,6 @@ package com.ezmeal.product.domain.event.producer;
 
 import com.ezmeal.product.domain.event.payload.ProductCreatedEvent;
 import com.ezmeal.product.domain.event.payload.ProductDeletedEvent;
-import com.ezmeal.product.domain.event.payload.ProductSearchLoggedEvent;
 import com.ezmeal.product.domain.event.payload.ProductUpdatedEvent;
 
 public interface ProductEventProducer {
