@@ -212,6 +212,7 @@ public class ProductService {
     @Transactional
     public void reserveOrderQuantityBulk(ProductOrderQuantityBulkReserveRequest request) {
         validateReservationRequest(request.orderId());
+        validateDuplicateProductIds(request);
 
         request.items().stream()
                 .sorted(Comparator.comparing(ProductReserveItem::productId))
@@ -249,6 +250,17 @@ public class ProductService {
 
     }
 
+    @Transactional(readOnly = true)
+    public List<ProductInfo> getProductsByIds(List<UUID> productIds) {
+        if (productIds == null || productIds.isEmpty()) {
+            throw new CustomException(ProductErrorCode.PRODUCT_INVALID_REQUEST);
+        }
+
+        return productRepository.findAllByIdInAndDeletedAtIsNull(productIds).stream()
+                .map(ProductInfo::from)
+                .toList();
+    }
+
     private void validateOrderQuantity(Integer quantity) {
         if (quantity == null || quantity <= 0) {
             throw new CustomException(ProductErrorCode.PRODUCT_ORDER_QUANTITY_INVALID);
@@ -261,14 +273,14 @@ public class ProductService {
         }
     }
 
-    @Transactional(readOnly = true)
-    public List<ProductInfo> getProductsByIds(List<UUID> productIds) {
-        if (productIds == null || productIds.isEmpty()) {
+    private void validateDuplicateProductIds(ProductOrderQuantityBulkReserveRequest request) {
+        long distinctCount = request.items().stream()
+                .map(ProductReserveItem::productId)
+                .distinct()
+                .count();
+
+        if (distinctCount != request.items().size()) {
             throw new CustomException(ProductErrorCode.PRODUCT_INVALID_REQUEST);
         }
-
-        return productRepository.findAllByIdInAndDeletedAtIsNull(productIds).stream()
-                .map(ProductInfo::from)
-                .toList();
     }
 }
