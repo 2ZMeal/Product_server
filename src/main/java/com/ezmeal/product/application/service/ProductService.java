@@ -6,6 +6,8 @@ import com.ezmeal.product.application.event.ProductStockChangedEvent;
 import com.ezmeal.product.application.request.ProductCreateRequest;
 import com.ezmeal.product.application.request.ProductMealPlanCreateRequest;
 import com.ezmeal.product.application.request.ProductMealPlanUpdateRequest;
+import com.ezmeal.product.application.request.ProductOrderQuantityBulkReserveRequest;
+import com.ezmeal.product.application.request.ProductOrderQuantityBulkReserveRequest.ProductReserveItem;
 import com.ezmeal.product.application.request.ProductUpdateRequest;
 import com.ezmeal.product.application.response.ProductInfo;
 import com.ezmeal.product.application.response.ProductResponse;
@@ -25,6 +27,7 @@ import com.ezmeal.product.domain.repository.companySnapshot.CompanySnapshotRepos
 import com.ezmeal.product.domain.repository.product.ProductRepository;
 import com.ezmeal.product.domain.repository.productReservation.ProductReservationRepository;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -176,8 +179,7 @@ public class ProductService {
         }
     }
 
-    @Transactional
-    public void reserveOrderQuantity(UUID productId, UUID orderId, Integer quantity) {
+    private void reserveOrderQuantity(UUID productId, UUID orderId, Integer quantity) {
 
         validateReservationRequest(orderId);
         validateOrderQuantity(quantity);
@@ -208,6 +210,21 @@ public class ProductService {
     }
 
     @Transactional
+    public void reserveOrderQuantityBulk(ProductOrderQuantityBulkReserveRequest request) {
+        validateReservationRequest(request.orderId());
+        validateDuplicateProductIds(request);
+
+        request.items().stream()
+                .sorted(Comparator.comparing(ProductReserveItem::productId))
+                .forEach(item -> reserveOrderQuantity(
+                        item.productId(),
+                        request.orderId(),
+                        item.quantity()
+                ));
+    }
+
+
+    @Transactional
     public void restoreReservedQuantity(UUID productId, UUID orderId) {
         validateReservationRequest(orderId);
 
@@ -233,17 +250,15 @@ public class ProductService {
 
     }
 
-    //api 테스트용
-    @Transactional
-    public void restoreOrderQuantity(UUID productId, Integer quantity) {
-        Product product = productRepository.findByIdAndDeletedAtIsNullForUpdate(productId)
-                .orElseThrow(() -> new CustomException(ProductErrorCode.PRODUCT_NOT_FOUND));
+    @Transactional(readOnly = true)
+    public List<ProductInfo> getProductsByIds(List<UUID> productIds) {
+        if (productIds == null || productIds.isEmpty()) {
+            throw new CustomException(ProductErrorCode.PRODUCT_INVALID_REQUEST);
+        }
 
-        validateOrderQuantity(quantity);
-
-        product.restoreOrderQuantity(quantity);
-
-        applicationEventPublisher.publishEvent(ProductStockChangedEvent.of(product.getId()));
+        return productRepository.findAllByIdInAndDeletedAtIsNull(productIds).stream()
+                .map(ProductInfo::from)
+                .toList();
     }
 
     private void validateOrderQuantity(Integer quantity) {
@@ -258,14 +273,14 @@ public class ProductService {
         }
     }
 
-    @Transactional(readOnly = true)
-    public List<ProductInfo> getProductsByIds(List<UUID> productIds) {
-        if (productIds == null || productIds.isEmpty()) {
+    private void validateDuplicateProductIds(ProductOrderQuantityBulkReserveRequest request) {
+        long distinctCount = request.items().stream()
+                .map(ProductReserveItem::productId)
+                .distinct()
+                .count();
+
+        if (distinctCount != request.items().size()) {
             throw new CustomException(ProductErrorCode.PRODUCT_INVALID_REQUEST);
         }
-
-        return productRepository.findAllByIdInAndDeletedAtIsNull(productIds).stream()
-                .map(ProductInfo::from)
-                .toList();
     }
 }
