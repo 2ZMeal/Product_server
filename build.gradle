@@ -36,7 +36,11 @@ dependencyManagement {
 }
 
 dependencies {
+	//S3
+	implementation platform("software.amazon.awssdk:bom:2.44.3")
+	implementation "software.amazon.awssdk:s3"
 
+	//elastic서치
 	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
 
 	// 공통 모듈
