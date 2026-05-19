@@ -59,6 +59,10 @@ public class Product extends BaseEntity {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductMealPlan> mealPlans = new ArrayList<>();
 
+    //s3이미지 키
+    @Column(name = "main_image_key", length = 500)
+    private String mainImageKey;
+
     //dto 읽기 전용
     public List<ProductMealPlan> getMealPlans() {
         return Collections.unmodifiableList(mealPlans);
@@ -208,5 +212,32 @@ public class Product extends BaseEntity {
         if (exists) {
             throw new IllegalArgumentException("같은 요일의 식단은 중복 등록할 수 없습니다.");
         }
+    }
+
+    //상품이미지 등록 메서드
+    public void updateMainImageKey(String mainImageKey) {
+        if (!StringUtils.hasText(mainImageKey)) {
+            throw new IllegalArgumentException("대표 이미지는 필수입니다.");
+        }
+
+        this.mainImageKey = mainImageKey;
+    }
+
+    //요일별 식단 이미지 등록 메서드
+    public void updateMealPlanImageKey(DayOfWeek dayOfWeek, String imageKey) {
+        if (dayOfWeek == null) {
+            throw new IllegalArgumentException("요일은 필수입니다.");
+        }
+
+        if (!StringUtils.hasText(imageKey)) {
+            throw new IllegalArgumentException("요일별 식단 이미지는 필수입니다.");
+        }
+
+        ProductMealPlan mealPlan = mealPlans.stream()
+                .filter(item -> item.getDayOfWeek() == dayOfWeek)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("해당 요일의 식단을 찾을 수 없습니다."));
+
+        mealPlan.updateImageKey(imageKey);
     }
 }

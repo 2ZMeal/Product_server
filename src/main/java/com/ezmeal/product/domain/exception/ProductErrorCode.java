@@ -19,7 +19,11 @@ public enum ProductErrorCode implements ErrorCode {
     PRODUCT_ORDER_QUANTITY_INVALID(HttpStatus.BAD_REQUEST, "PRODUCT_ORDER_QUANTITY_400", "주문 수량은 1개 이상이어야 합니다."),
     PRODUCT_ORDER_QUANTITY_EXCEEDED(HttpStatus.CONFLICT, "PRODUCT_ORDER_QUANTITY_409", "주문 가능 수량이 부족합니다."),
     PRODUCT_RECOMMENDATION_LOGIN_REQUIRED(HttpStatus.UNAUTHORIZED, "PRODUCT_RECOMMENDATION_401",
-            "추천 상품 조회는 로그인이 필요합니다.");
+            "추천 상품 조회는 로그인이 필요합니다."),
+    PRODUCT_IMAGE_INVALID_REQUEST(HttpStatus.BAD_REQUEST, "PRODUCT_IMAGE_400", "잘못된 상품 이미지 요청입니다."),
+    PRODUCT_IMAGE_UNSUPPORTED_CONTENT_TYPE(HttpStatus.BAD_REQUEST, "PRODUCT_IMAGE_TYPE_400", "지원하지 않는 이미지 형식입니다."),
+    PRODUCT_IMAGE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "PRODUCT_IMAGE_SIZE_400", "이미지 파일 크기는 5MB 이하여야 합니다."),
+    PRODUCT_IMAGE_OBJECT_KEY_MISMATCH(HttpStatus.BAD_REQUEST, "PRODUCT_IMAGE_KEY_400", "이미지 객체 키가 요청 정보와 일치하지 않습니다.");
 
     private final HttpStatus status;
     private final String code;
