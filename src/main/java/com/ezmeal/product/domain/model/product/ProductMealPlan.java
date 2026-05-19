@@ -51,6 +51,8 @@ public class ProductMealPlan extends BaseEntity {
     @Column(name = "image_key", length = 500)
     private String imageKey;
 
+    private static final int IMAGE_KEY_MAX_LENGTH = 500;
+
     // 요일별 식단 생성
     public ProductMealPlan(DayOfWeek dayOfWeek, String menuName, String allergyInfo,
                            String nutritionInfo) {
@@ -123,6 +125,10 @@ public class ProductMealPlan extends BaseEntity {
     public void updateImageKey(String imageKey) {
         if (!StringUtils.hasText(imageKey)) {
             throw new IllegalArgumentException("식단 이미지 키는 필수입니다.");
+        }
+
+        if (imageKey.length() > IMAGE_KEY_MAX_LENGTH) {
+            throw new IllegalArgumentException("식단 이미지 키는 500자 이하여야 합니다.");
         }
 
         this.imageKey = imageKey;

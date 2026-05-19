@@ -59,18 +59,22 @@ public class ProductImageUploadService {
                 .orElseThrow(() -> new CustomException(ProductErrorCode.PRODUCT_NOT_FOUND));
 
         validateObjectKeyMatchesRequest(request);
+        try {
+            if (request.uploadType() == ProductImageUploadType.PRODUCT_MAIN_IMAGE) {
+                product.updateMainImageKey(request.objectKey());
+                return;
+            }
 
-        if (request.uploadType() == ProductImageUploadType.PRODUCT_MAIN_IMAGE) {
-            product.updateMainImageKey(request.objectKey());
-            return;
+            if (request.uploadType() == ProductImageUploadType.MEAL_PLAN_IMAGE) {
+                product.updateMealPlanImageKey(request.dayOfWeek(), request.objectKey());
+                return;
+            }
+
+        } catch (IllegalArgumentException e) {
+            throw new CustomException(ProductErrorCode.PRODUCT_IMAGE_INVALID_REQUEST);
         }
 
-        if (request.uploadType() == ProductImageUploadType.MEAL_PLAN_IMAGE) {
-            product.updateMealPlanImageKey(request.dayOfWeek(), request.objectKey());
-            return;
-        }
-
-        throw new CustomException(ProductErrorCode.PRODUCT_INVALID_REQUEST);
+        throw new CustomException(ProductErrorCode.PRODUCT_IMAGE_INVALID_REQUEST);
     }
 
     private void validate(ProductImageUploadUrlRequest request) {

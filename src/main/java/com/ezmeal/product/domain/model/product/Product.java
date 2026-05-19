@@ -63,6 +63,8 @@ public class Product extends BaseEntity {
     @Column(name = "main_image_key", length = 500)
     private String mainImageKey;
 
+    private static final int IMAGE_KEY_MAX_LENGTH = 500;
+
     //dto 읽기 전용
     public List<ProductMealPlan> getMealPlans() {
         return Collections.unmodifiableList(mealPlans);
@@ -218,6 +220,10 @@ public class Product extends BaseEntity {
     public void updateMainImageKey(String mainImageKey) {
         if (!StringUtils.hasText(mainImageKey)) {
             throw new IllegalArgumentException("대표 이미지는 필수입니다.");
+        }
+
+        if (mainImageKey.length() > IMAGE_KEY_MAX_LENGTH) {
+            throw new IllegalArgumentException("대표 이미지 키는 500자 이하여야 합니다.");
         }
 
         this.mainImageKey = mainImageKey;
