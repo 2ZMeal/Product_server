@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile("local")
+@Profile({"local", "dev"})
 public class FakePresignedUrlProvider implements PresignedUrlProvider {
 
     private static final String MOCK_UPLOAD_BASE_URL = "http://localhost:19083/mock-upload/";
