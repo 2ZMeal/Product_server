@@ -11,6 +11,7 @@ import com.ezmeal.product.application.request.ProductOrderQuantityBulkReserveReq
 import com.ezmeal.product.application.request.ProductUpdateRequest;
 import com.ezmeal.product.application.response.ProductInfo;
 import com.ezmeal.product.application.response.ProductResponse;
+import com.ezmeal.product.application.response.ProductResponseMapper;
 import com.ezmeal.product.domain.event.payload.ProductCreatedEvent;
 import com.ezmeal.product.domain.event.payload.ProductDeletedEvent;
 import com.ezmeal.product.domain.event.payload.ProductMealPlanEventPayload;
@@ -44,6 +45,7 @@ public class ProductService {
     private final ProductEventProducer productEventProducer;
     private final ProductReservationEventProducer productReservationEventProducer;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final ProductResponseMapper productResponseMapper;
 
     //상품 생성
     @Transactional
@@ -81,7 +83,7 @@ public class ProductService {
         productEventProducer.publishCreatedEvent(event);
         applicationEventPublisher.publishEvent(event);
 
-        return ProductResponse.from(productSaved);
+        return productResponseMapper.from(productSaved);
     }
 
     //상품 수정(요일별 식단 개별 수정x 전체 수정o)
@@ -126,7 +128,7 @@ public class ProductService {
         productEventProducer.publishUpdatedEvent(event);
         applicationEventPublisher.publishEvent(event);
 
-        return ProductResponse.from(product);
+        return productResponseMapper.from(product);
     }
 
     //상품 삭제
@@ -154,7 +156,7 @@ public class ProductService {
         Product product = productRepository.findByIdAndDeletedAtIsNull(productId)
                 .orElseThrow(() -> new CustomException(ProductErrorCode.PRODUCT_NOT_FOUND));
 
-        return ProductResponse.from(product);
+        return productResponseMapper.from(product);
     }
 
     private void validateCompanyAccess(CompanySnapshot companySnapshot, String userId, Role role) {
