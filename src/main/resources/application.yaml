@@ -1,0 +1,16 @@
+server:
+  port: 19083
+
+spring:
+  application:
+    name: product-service
+
+  config:
+    import: "configserver:"      # Config Server에서 설정 가져옴
+  cloud:
+    config:
+      uri: ${CONFIG_SERVER_URI:http://localhost:8888}
+      fail-fast: false
+      retry:
+        max-attempts: 3
+        initial-interval: 1000

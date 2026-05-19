@@ -1,0 +1,43 @@
+package com.ezmeal.product.domain.event.payload;
+
+import com.ezmeal.common.message.DomainEvent;
+import com.ezmeal.product.domain.model.product.ProductCategory;
+import com.ezmeal.product.domain.model.product.ProductMealPeriod;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+public class ProductCreatedEvent implements DomainEvent {
+
+    private UUID productId;
+    private UUID companyId;
+    private String productName;
+    private String productDescription;
+    private Integer price;
+    private ProductCategory category;
+    private ProductMealPeriod mealPeriod;
+    private Integer maxOrderCount;
+    private List<ProductMealPlanEventPayload> mealPlans;
+    private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
+
+    public static ProductCreatedEvent of(UUID productId, UUID companyId, String productName, String productDescription,
+                                         Integer price,
+                                         ProductCategory category, ProductMealPeriod mealPeriod, Integer maxOrderCount,
+                                         List<ProductMealPlanEventPayload> mealPlans, LocalDateTime createdAt,
+                                         LocalDateTime modifiedAt
+    ) {
+        return new ProductCreatedEvent(
+                productId, companyId, productName, productDescription, price, category,
+                mealPeriod,
+                maxOrderCount, mealPlans, createdAt, modifiedAt);
+    }
+
+}
