@@ -1,12 +1,18 @@
 package com.ezmeal.product.application.service;
 
+import com.ezmeal.common.exception.CustomException;
+import com.ezmeal.product.application.request.ProductImageUploadCompleteRequest;
 import com.ezmeal.product.application.request.ProductImageUploadUrlRequest;
 import com.ezmeal.product.application.response.ProductImageUploadUrlResponse;
 import com.ezmeal.product.application.upload.PresignedUrlProvider;
 import com.ezmeal.product.application.upload.ProductImageUploadType;
+import com.ezmeal.product.domain.exception.ProductErrorCode;
+import com.ezmeal.product.domain.model.product.Product;
+import com.ezmeal.product.domain.repository.product.ProductRepository;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 @Service
@@ -24,6 +30,7 @@ public class ProductImageUploadService {
 
     private final ProductImageKeyGenerator productImageKeyGenerator;
     private final PresignedUrlProvider presignedUrlProvider;
+    private final ProductRepository productRepository;
 
     public ProductImageUploadUrlResponse createUploadUrl(ProductImageUploadUrlRequest request) {
         validate(request);
@@ -44,42 +51,105 @@ public class ProductImageUploadService {
         );
     }
 
+    @Transactional
+    public void completeUpload(ProductImageUploadCompleteRequest request) {
+        validateCompleteRequest(request);
+
+        Product product = productRepository.findByIdAndDeletedAtIsNull(request.productId())
+                .orElseThrow(() -> new CustomException(ProductErrorCode.PRODUCT_NOT_FOUND));
+
+        validateObjectKeyMatchesRequest(request);
+        try {
+            if (request.uploadType() == ProductImageUploadType.PRODUCT_MAIN_IMAGE) {
+                product.updateMainImageKey(request.objectKey());
+                return;
+            }
+
+            if (request.uploadType() == ProductImageUploadType.MEAL_PLAN_IMAGE) {
+                product.updateMealPlanImageKey(request.dayOfWeek(), request.objectKey());
+                return;
+            }
+
+        } catch (IllegalArgumentException e) {
+            throw new CustomException(ProductErrorCode.PRODUCT_IMAGE_INVALID_REQUEST);
+        }
+
+        throw new CustomException(ProductErrorCode.PRODUCT_IMAGE_INVALID_REQUEST);
+    }
+
     private void validate(ProductImageUploadUrlRequest request) {
         if (request == null) {
-            throw new IllegalArgumentException("Upload request is required.");
+            throw new CustomException(ProductErrorCode.PRODUCT_IMAGE_INVALID_REQUEST);
         }
 
         if (request.uploadType() == null) {
-            throw new IllegalArgumentException("Upload type is required.");
+            throw new CustomException(ProductErrorCode.PRODUCT_IMAGE_INVALID_REQUEST);
         }
 
         if (request.productId() == null) {
-            throw new IllegalArgumentException("Product id is required.");
+            throw new CustomException(ProductErrorCode.PRODUCT_IMAGE_INVALID_REQUEST);
         }
 
         if (!StringUtils.hasText(request.contentType())) {
-            throw new IllegalArgumentException("Content type is required.");
+            throw new CustomException(ProductErrorCode.PRODUCT_IMAGE_INVALID_REQUEST);
         }
 
         if (!ALLOWED_CONTENT_TYPES.contains(request.contentType())) {
-            throw new IllegalArgumentException("Unsupported image content type.");
+            throw new CustomException(ProductErrorCode.PRODUCT_IMAGE_UNSUPPORTED_CONTENT_TYPE);
         }
 
         if (request.fileSize() == null) {
-            throw new IllegalArgumentException("File size is required.");
+            throw new CustomException(ProductErrorCode.PRODUCT_IMAGE_INVALID_REQUEST);
         }
 
         if (request.fileSize() <= 0) {
-            throw new IllegalArgumentException("File size must be positive.");
+            throw new CustomException(ProductErrorCode.PRODUCT_IMAGE_INVALID_REQUEST);
         }
 
         if (request.fileSize() > MAX_IMAGE_SIZE) {
-            throw new IllegalArgumentException("Image file size must be 5MB or less.");
+            throw new CustomException(ProductErrorCode.PRODUCT_IMAGE_SIZE_EXCEEDED);
         }
 
         if (request.uploadType() == ProductImageUploadType.MEAL_PLAN_IMAGE
                 && request.dayOfWeek() == null) {
-            throw new IllegalArgumentException("Day of week is required for meal plan image.");
+            throw new CustomException(ProductErrorCode.PRODUCT_IMAGE_INVALID_REQUEST);
+        }
+    }
+
+    private void validateCompleteRequest(ProductImageUploadCompleteRequest request) {
+        if (request == null) {
+            throw new CustomException(ProductErrorCode.PRODUCT_IMAGE_INVALID_REQUEST);
+        }
+
+        if (request.uploadType() == null) {
+            throw new CustomException(ProductErrorCode.PRODUCT_IMAGE_INVALID_REQUEST);
+        }
+
+        if (request.productId() == null) {
+            throw new CustomException(ProductErrorCode.PRODUCT_IMAGE_INVALID_REQUEST);
+        }
+
+        if (!StringUtils.hasText(request.objectKey())) {
+            throw new CustomException(ProductErrorCode.PRODUCT_IMAGE_INVALID_REQUEST);
+        }
+
+        if (request.uploadType() == ProductImageUploadType.MEAL_PLAN_IMAGE
+                && request.dayOfWeek() == null) {
+            throw new CustomException(ProductErrorCode.PRODUCT_IMAGE_INVALID_REQUEST);
+        }
+    }
+
+    private void validateObjectKeyMatchesRequest(ProductImageUploadCompleteRequest request) {
+        String expectedPrefix = switch (request.uploadType()) {
+            case PRODUCT_MAIN_IMAGE -> "products/%s/main/".formatted(request.productId());
+            case MEAL_PLAN_IMAGE -> "products/%s/meal-plans/%s/".formatted(
+                    request.productId(),
+                    request.dayOfWeek()
+            );
+        };
+
+        if (!request.objectKey().startsWith(expectedPrefix)) {
+            throw new CustomException(ProductErrorCode.PRODUCT_IMAGE_OBJECT_KEY_MISMATCH);
         }
     }
 }

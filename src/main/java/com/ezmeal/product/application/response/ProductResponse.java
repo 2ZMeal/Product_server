@@ -1,6 +1,5 @@
 package com.ezmeal.product.application.response;
 
-import com.ezmeal.product.domain.model.product.Product;
 import com.ezmeal.product.domain.model.product.ProductCategory;
 import com.ezmeal.product.domain.model.product.ProductMealPeriod;
 import java.util.List;
@@ -15,21 +14,7 @@ public record ProductResponse(
         Integer maxOrderCount,
         ProductCategory category,
         ProductMealPeriod mealPeriod,
+        String mainImageUrl,
         List<ProductMealPlanResponse> mealPlans
 ) {
-    public static ProductResponse from(Product product) {
-        return new ProductResponse(
-                product.getId(),
-                product.getCompanyId(),
-                product.getName(),
-                product.getDescription(),
-                product.getPrice(),
-                product.getMaxOrderCount(),
-                product.getCategory(),
-                product.getMealPeriod(),
-                product.getMealPlans().stream()
-                        .map(ProductMealPlanResponse::from)
-                        .toList()
-        );
-    }
 }

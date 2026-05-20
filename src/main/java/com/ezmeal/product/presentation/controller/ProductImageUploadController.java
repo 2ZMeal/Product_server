@@ -1,6 +1,7 @@
 package com.ezmeal.product.presentation.controller;
 
 import com.ezmeal.common.response.CommonApiResponse;
+import com.ezmeal.product.application.request.ProductImageUploadCompleteRequest;
 import com.ezmeal.product.application.request.ProductImageUploadUrlRequest;
 import com.ezmeal.product.application.response.ProductImageUploadUrlResponse;
 import com.ezmeal.product.application.service.ProductImageUploadService;
@@ -29,4 +30,12 @@ public class ProductImageUploadController {
         );
     }
 
+    @PostMapping("/complete")
+    public ResponseEntity<CommonApiResponse<Void>> completeUpload(
+            @RequestBody ProductImageUploadCompleteRequest request
+    ) {
+        productImageUploadService.completeUpload(request);
+
+        return ResponseEntity.ok(CommonApiResponse.success());
+    }
 }

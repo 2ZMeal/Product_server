@@ -47,6 +47,12 @@ public class ProductMealPlan extends BaseEntity {
     @Column(name = "nutrition_info", length = 255)
     private String nutritionInfo;
 
+    //s3이미지 키
+    @Column(name = "image_key", length = 500)
+    private String imageKey;
+
+    private static final int IMAGE_KEY_MAX_LENGTH = 500;
+
     // 요일별 식단 생성
     public ProductMealPlan(DayOfWeek dayOfWeek, String menuName, String allergyInfo,
                            String nutritionInfo) {
@@ -63,7 +69,7 @@ public class ProductMealPlan extends BaseEntity {
     }
 
 
-    //수정
+    //혹시 나중에 개별 수정 하게 될 경우를 위해 남겨둠
     public void update(DayOfWeek dayOfWeek, String menuName, String allergyInfo,
                        String nutritionInfo) {
         DayOfWeek nextDayOfWeek = dayOfWeek != null ? dayOfWeek : this.dayOfWeek;
@@ -116,4 +122,15 @@ public class ProductMealPlan extends BaseEntity {
         this.product = product;
     }
 
+    public void updateImageKey(String imageKey) {
+        if (!StringUtils.hasText(imageKey)) {
+            throw new IllegalArgumentException("식단 이미지 키는 필수입니다.");
+        }
+
+        if (imageKey.length() > IMAGE_KEY_MAX_LENGTH) {
+            throw new IllegalArgumentException("식단 이미지 키는 500자 이하여야 합니다.");
+        }
+
+        this.imageKey = imageKey;
+    }
 }
