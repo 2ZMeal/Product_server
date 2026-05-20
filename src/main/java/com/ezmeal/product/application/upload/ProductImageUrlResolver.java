@@ -1,5 +1,6 @@
 package com.ezmeal.product.application.upload;
-import org.springframework.beans.factory.annotation.Value;
+
+import com.ezmeal.product.infrastructure.config.AwsProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -8,10 +9,8 @@ public class ProductImageUrlResolver {
 
     private final String imageBaseUrl;
 
-    public ProductImageUrlResolver(
-            @Value("${cloud.aws.s3.image-base-url}") String imageBaseUrl
-    ) {
-        this.imageBaseUrl = removeTrailingSlash(imageBaseUrl);
+    public ProductImageUrlResolver(AwsProperties awsProperties) {
+        this.imageBaseUrl = removeTrailingSlash(awsProperties.s3().imageBaseUrl());
     }
 
     public String resolve(String objectKey) {
